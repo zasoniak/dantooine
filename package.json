@@ -13,6 +13,8 @@
     "express": "~4.13.0",
     "morgan": "~1.6.1",
     "serve-favicon": "~2.3.0",
-    "mongoose":"~4.1.7"
+    "mongoose":"~4.1.7",
+    "wkhtmltopdf": "~0.1.5",
+    "bcrypt-nodejs":"~0.0.3"
   }
 }
