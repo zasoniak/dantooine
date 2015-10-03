@@ -5,6 +5,7 @@
 var mongoose = require('mongoose');
 
 var deviceSchema = mongoose.Schema({
+    number: Number,
     MAC: String,
     type: String,
     authorization: String,

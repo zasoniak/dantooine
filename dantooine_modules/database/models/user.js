@@ -10,8 +10,7 @@ var userSchema = mongoose.Schema({
     local            : {
         login        : String,
         password     : String
-    },
-    council: {type:Schema.Types.ObjectId, ref: 'Council'}
+    }
 });
 
 // methods ======================

@@ -12,13 +12,7 @@ var votingSchema = new Schema ({
     contents: String,
     variants: [ {id: Number, contents: String}],
     answers: [{MAC: String, answers: [Number], timestamp: {type: Date, default: Date.now}}],
-    extra_voters: [{device:{type: Schema.Types.ObjectId, ref:'Device'},
-        name: String,
-        surname: String,
-        title: String,
-        faculty: String,
-        area_of_interests: String
-    }]
+    extra_voters: [{type: Schema.Types.ObjectId, ref:'Voter'}]
 });
 
 module.exports = mongoose.model('Voting', votingSchema);

@@ -6,8 +6,7 @@ var Schema = mongoose.Schema;
 
 var councilSchema = mongoose.Schema({
     _creator: { type: Schema.Types.ObjectId, ref: 'User'},
-    authorization_full:[{type:Schema.Types.ObjectId, ref: 'CouncilMember'}],
-    authorization_limited:[{type:Schema.Types.ObjectId, ref: 'CouncilMember'}],
+    members: [{type:Schema.Types.ObjectId, ref: 'CouncilMember'}],
     sessions: [{type:Schema.Types.ObjectId, ref: 'Session'}]
 });
 

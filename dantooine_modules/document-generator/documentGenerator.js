@@ -59,10 +59,12 @@ module.exports.getPresenceList = function(councilID)
  * @param votingID
  * @returns {*} pdf file with voting summary protocol
  */
-module.exports.getVotingProtocol = function(votingID)
+module.exports.getVotingProtocol = function(votingID, callback)
 {
-    //wyciagnac glosowanie
-    //wygenerowac html
-    var page;
-    return pdfGenerator(page,{pageSize:'A4'});
-}
+    var page ="error";
+    Voting.findById(votingID, function(err,voting){
+        if(err) callback(err,null);
+        page = ejs.render(read(__dirname + '/views/votingProtocol.ejs', 'utf-8'),{voting:voting});
+        callback(null,pdfGenerator(page,{pageSize:'A4'}));
+    });
+};
