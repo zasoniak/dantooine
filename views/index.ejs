@@ -2,10 +2,31 @@
 <html>
   <head>
     <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel="stylesheet" href="/stylesheets/pure-min.css">
+    <link rel="stylesheet" href="/stylesheets/style.css">
   </head>
   <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+    <header class="content">
+      <img id="logo" src="/images/WM3.png">
+      <h2>
+        <small>Politechnika Warszawska</small><br />Wydział Mechatroniki
+      </h2>
+      <h1><%= system %></h1>
+    </header>
+    <section>
+      <form class="pure-form pure-form-stacked">
+        <fieldset>
+          <legend>Zaloguj się do systemu</legend>
+
+          <label for="login">Login</label>
+          <input id="login" type="text" placeholder="Login">
+
+          <label for="password">Hasło</label>
+          <input id="password" type="password" placeholder="Hasło">
+
+          <button type="submit" class="pure-button button-primary">Zaloguj</button>
+        </fieldset>
+      </form>
+    </section>
   </body>
 </html>

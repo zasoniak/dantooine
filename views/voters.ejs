@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/stylesheets/pure-min.css">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+<% include header.ejs %>
+<section>
+    <div>
+        <table class="pure-table pure-table-horizontal council-table">
+            <caption>Pracownicy samodzielni</caption>
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Nazwisko</th>
+                <th>Tytuł naukowy</th>
+                <th>Kierunek</th>
+                <th>Specjalizacja</th>
+                <th>Dziedzina</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>1</td>
+                <th>Kurek, Jurek</th>
+                <td>Predecesor</td>
+                <td>lewy</td>
+                <td>wąska</td>
+                <td>nieżyciowa</td>
+                <td class="cell-action"><button class="pure-button button-yellow">Edytuj</button><button class="pure-button button-red">Usuń</button></td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <th>Bartyś, Misiek</th>
+                <td>Doktorro</td>
+                <td>prawy</td>
+                <td>studenci</td>
+                <td>automatyka</td>
+                <td class="cell-action"><button class="pure-button button-yellow">Edytuj</button><button class="pure-button button-red">Usuń</button></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="action-bar">
+        <a id="button-add-member" class="pure-button button-primary">Dodaj</a>
+    </div>
+</section>
+<div id="popup1" class="overlay">
+    <section class="popup">
+        <h3>Dodaj członka Rady</h3>
+        <form class="pure-form" method="post" action="/voters">
+            <fieldset class="pure-group">
+                <input type="text" name="last_name" class="pure-input-1" placeholder="Nazwisko">
+                <input type="text" name="first_name" class="pure-input-1" placeholder="imię">
+            </fieldset>
+
+            <fieldset class="pure-group">
+                <input type="text" class="pure-input-1" placeholder="Tytuł naukowy" list="science-titles">
+                <datalist id="science-titles">
+                    <option>Prof. dr hab. inż.</option>
+                    <option>Prof. dr hab.</option>
+                    <option>Prof. nzw. dr hab. inż.</option>
+                    <option>Prof. nzw. dr hab.</option>
+                    <option>Dr hab. inż</option>
+                    <option>Dr hab.</option>
+                </datalist>
+                <input type="text" class="pure-input-1" placeholder="Kierunek" list="specialties">
+                <datalist id="specialties">
+                    <option>Automatyka i Robotyka</option>
+                    <option>Mechatronika</option>
+                </datalist>
+                <input type="text" class="pure-input-1" placeholder="Specjalność">
+            </fieldset>
+
+            <div class="action-bar">
+                <button id="button-cancel-add-member" class="pure-button">Anuluj</button>
+                <button type="reset" class="pure-button">Wyczyść</button>
+                <button type="submit" class="pure-button button-primary">Dodaj</button>
+            </div>
+        </form>
+    </section>
+</div>
+<div id="popup2" class="overlay">
+    <section class="popup">
+        <p>Usunąć członka rady?</p>
+        <div class="action-bar">
+            <a class="pure-button" href="#">Anuluj</a>
+            <a type="submit" class="pure-button button-red">Usuń</a>
+        </div>
+    </section>
+</div>
+<script src="http://zeptojs.com/zepto.min.js"></script>
+<script>
+    $('#button-add-member').on('click', function(e){
+        $('#popup1').addClass('active');
+    });
+
+    $('#button-cancel-add-member').on('click', function(e){
+        $('#popup1').removeClass('active');
+    });
+</script>
+<% include footer.ejs %>
+</body>
+</html>
