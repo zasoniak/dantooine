@@ -1,3 +1,26 @@
-<h1><%= message %></h1>
-<h2><%= error.status %></h2>
-<pre><%= error.stack %></pre>
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= message %></title>
+    <link rel="stylesheet" href="/stylesheets/pure-min.css">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+<header class="content">
+    <img id="logo" src="/images/WM3.png">
+    <h2>
+        <small>Politechnika Warszawska</small><br />Wydział Mechatroniki
+    </h2>
+</header>
+<section>
+    <h3><%= error.status %></h3>
+    <p>
+        <%= message %>
+    </p>
+    <p>
+        <%= error.stack %>
+    </p>
+</section>
+<% include footer.ejs %>
+</body>
+</html>

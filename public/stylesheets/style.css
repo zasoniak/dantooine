@@ -1,8 +1,230 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+@import url(https://fonts.googleapis.com/css?family=Lato:400,700&subset=latin-ext);
+
+h1, h2, h3 {
+    font-weight: 700;
+    text-align: center;
 }
 
-a {
-  color: #00B7FF;
+.navbar {
+    overflow: auto;
+}
+
+.navbar ul {
+    margin: 0.5em 2em;
+}
+
+.navbar ul:last-of-type {
+    margin-right: 0;
+}
+
+footer {
+    font-size: 90%;
+    color: #999;
+}
+
+footer p {
+    display: inline-block;
+    margin: 0 1em;
+}
+
+h1 {
+    font-size: 1.6em;
+}
+
+h2 {
+    font-size: 1.3em;
+}
+
+h3 {
+    font-size: 1em;
+    /*font-weight: normal;*/
+    color: darkgreen;
+    padding: 0 0 0.3em;
+    border-bottom: 1px solid lightgray;
+    text-align: left;
+}
+
+.content {
+    margin: 1em auto;
+    width: 60%;
+}
+
+#logo {
+    display: block;
+    margin: 3em auto 1em;
+}
+
+#home-logo {
+    height: 2.5em;
+    margin: 0.5em 1em;
+    float: left;
+    display: inline-block;
+}
+
+body {
+    background-color: whitesmoke;
+    color: #666;
+    line-height: 1.5;
+    font-family: 'Lato', sans-serif;
+}
+
+section {
+    background-color: white;
+    width: 60%;
+    margin: 2em auto;
+    overflow: auto;
+    border-radius: 0.5em;
+}
+
+section > *:first-child {
+    margin: 2em 2em 1em;
+}
+
+section > * {
+    margin: 1em 2em;
+}
+
+section > *:last-child {
+    margin: 1em 2em 2em;
+}
+
+/*section > h3:first-child {*/
+    /*display: inline-block;*/
+    /*margin: 0 0 0;*/
+    /*padding: 0.5em 2em;*/
+    /*border: 1px solid silver;*/
+    /*border-top-width: 0;*/
+    /*border-left-width: 0;*/
+    /*border-radius: 0 0 0.5em 0;*/
+/*}*/
+
+section > h3:first-child {
+
+}
+
+button:not(:last-child) {
+    margin-right: 0.5em;
+}
+
+form button, form a {
+    margin-top: 1em;
+}
+
+.button-primary {
+    background-color: darkgreen;
+    color: white;
+}
+
+.menu-list {
+    display: inline-block;
+    float: left;
+}
+
+.menu-link {
+    border-radius: 0.5em;
+    display: block;
+}
+
+.menu-link:hover {
+    color: darkgreen;
+}
+
+.left {
+    float: left;
+}
+
+.right {
+    float: right;
+}
+
+.cleared {
+    clear: both;
+}
+
+.council-table {
+    width: 100%;
+}
+
+.council-table thead {
+    color: darkgreen;
+    background-color: whitesmoke;
+}
+
+.council-table tbody th {
+    text-align: left;
+}
+
+.council-table tr button, .council-table tr a.pure-button {
+    font-size: 80%;
+    margin-top: -0.2em;
+    margin-right: 0.5em;
+    margin-bottom: -0.2em;
+    visibility: hidden;
+}
+
+.council-table tr button:last-child, .council-table tr a.pure-button:last-child {
+    margin-right: 0;
+}
+
+.council-table tr:hover button, .council-table tr:hover a.pure-button {
+    visibility: visible;
+}
+
+.council-table .button-primary {
+    visibility: visible;
+}
+
+.even-layout {
+    table-layout: fixed;
+}
+
+.cell-action {
+    text-align: right;
+}
+
+.action-bar {
+    text-align: right;
+}
+
+.button-red:hover {
+    background-color: firebrick;
+    color: white;
+}
+
+.button-yellow:hover {
+    background-color: goldenrod;
+    color: white;
+}
+
+.button-xlarge {
+    font-size: 150%;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.5);
+    transition: opacity 500ms;
+    visibility: hidden;
+    opacity: 0;
+}
+.overlay.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+.popup {
+    margin: 10em auto 0;
+    width: 40%;
+    position: relative;
+    transition: all 5s ease-in-out;
+}
+
+.tip {
+    font-size: 90%;
+    color: #aaa;
+    font-style: italic;
 }

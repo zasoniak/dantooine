@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/stylesheets/pure-min.css">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+<% include header.ejs %>
+<section>
+    <h3><%= title %></h3>
+    <div>
+        <table class="pure-table council-table even-layout">
+            <thead>
+            <tr>
+                <th>Data</th>
+                <th>Tryb</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>28.04.2015</td>
+                <td>Nadzwyczajna</td>
+                <td>Nierozpoczęta</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="action-bar">
+        <button type="button" class="pure-button">Generuj listę obecności<img src="/images/icon_pdf.gif" style="vertical-align: bottom; margin-left: 8px;"/></button>
+        <button type="button" class="pure-button">Generuj raport<img src="/images/icon_pdf.gif" style="vertical-align: bottom; margin-left: 8px;"/></button>
+        <button type="button" id="button-add-extra-voter" class="pure-button">Dodaj głosującego</button>
+        <button type="button" id="button-add-question" class="pure-button">Dodaj głosowanie</button>
+        <a class="pure-button button-primary">Rozpocznij sesję</a>
+    </div>
+</section>
+<section>
+    <h3>Głosowania</h3>
+    <ol class="voting-list">
+        <li>
+            <p>Czy powinniśmy zapłacić studentom dużo monet?</p>
+            <ol>
+                <li>tak, dużo monet</li>
+                <li>nie, więcej monet</li>
+            </ol>
+        </li>
+        <li>
+            <p>Czy powinniśmy zainwestować w wydziałowego McDonalda?</p>
+            <ol>
+                <li>tak</li>
+                <li>tak, ale zbudujmy KFC</li>
+            </ol>
+        </li>
+        <li>
+            <p>Czy powinniśmy w Mechaniku urządzić game room?</p>
+            <ol>
+                <li>tak</li>
+                <li>nie</li>
+            </ol>
+        </li>
+        <li>
+            <p>Kto powinien zostać Dziekanem?</p>
+            <ol>
+                <li>Michał Bartyś</li>
+                <li>Bartyś, Michał</li>
+                <li>dr hab. M. Bartyś</li>
+            </ol>
+        </li>
+    </ol>
+</section>
+<div id="popup-add-question" class="overlay">
+    <section class="popup">
+        <h3>Dodaj głosowanie</h3>
+        <form class="pure-form">
+            <%- hidden_field_tag('session_id', session_id) %>
+
+            <fieldset class="pure-group">
+                <input type="text" name="question" class="pure-input-1" placeholder="Pytanie">
+            </fieldset>
+
+            <button type="button" id="button-yes-no-question" class="pure-button">Pytanie tak/nie</button>
+
+            <fieldset id="fieldset-answers" class="pure-group">
+                <input type="text" name="answers" class="pure-input-1" placeholder="Odpowiedź">
+                <input type="text" name="answers" class="pure-input-1" placeholder="Odpowiedź">
+                <input type="text" name="answers" class="pure-input-1" placeholder="Odpowiedź">
+            </fieldset>
+            <span class="tip">Wskazówka: po rozpoczęciu wpisywania w ostatnim polu pojawi się kolejne</span>
+
+            <div class="action-bar">
+                <button type="button" id="button-cancel-add-question" class="pure-button">Anuluj</button>
+                <button type="reset" class="pure-button">Wyczyść</button>
+                <button type="submit" class="pure-button button-primary">Dodaj</button>
+            </div>
+        </form>
+    </section>
+</div>
+<% include footer.ejs %>
+<script src="http://zeptojs.com/zepto.min.js"></script>
+<script>
+    $('#button-add-question').on('click', function(e){
+        $('#popup-add-question').addClass('active');
+    });
+
+    $('#button-cancel-add-question').on('click', function(e){
+        $('#popup-add-question').removeClass('active');
+    });
+
+    function addFormInput(e) {
+        $('<input type="text" name="answer" class="pure-input-1" placeholder="Odpowiedź">').appendTo('#fieldset-answers').one('input', addFormInput);
+    }
+
+    $('#fieldset-answers').children().last().one('input', addFormInput);
+
+    $('#button-yes-no-question').on('click', function (e) {
+        var fieldset = $('#fieldset-answers');
+        fieldset.children().eq(0).val('Tak');
+        fieldset.children().eq(1).val('Nie');
+    });
+</script>
+</body>
+</html>
