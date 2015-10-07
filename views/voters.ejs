@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/html">
+<html xmlns="http://www.w3.org/1999/html" lang="pl">
 <head>
     <title><%= title %></title>
     <link rel="stylesheet" href="/stylesheets/pure-min.css">
@@ -16,31 +16,22 @@
                 <th>#</th>
                 <th>Nazwisko</th>
                 <th>Tytuł naukowy</th>
-                <th>Kierunek</th>
-                <th>Specjalizacja</th>
+                <th>Instytut</th>
                 <th>Dziedzina</th>
                 <th></th>
             </tr>
             </thead>
             <tbody>
+            <% for (var i=0; i<voters.length; i++) { %>
             <tr>
-                <td>1</td>
-                <th>Kurek, Jurek</th>
-                <td>Predecesor</td>
-                <td>lewy</td>
-                <td>wąska</td>
-                <td>nieżyciowa</td>
+                <td><%= i+1 %></td>
+                <th><%= voters[i].surname + ', ' + voters[i].name %></th>
+                <td><%= voters[i].title %></td>
+                <td><%= voters[i].faculty %></td>
+                <td><%= voters[i].area_of_interests %></td>
                 <td class="cell-action"><button class="pure-button button-yellow">Edytuj</button><button class="pure-button button-red">Usuń</button></td>
             </tr>
-            <tr>
-                <td>2</td>
-                <th>Syfert, Misiek</th>
-                <td>Doktorro</td>
-                <td>prawy</td>
-                <td>studenci</td>
-                <td>automatyka</td>
-                <td class="cell-action"><button class="pure-button button-yellow">Edytuj</button><button class="pure-button button-red">Usuń</button></td>
-            </tr>
+            <% } %>
             </tbody>
         </table>
     </div>
@@ -53,12 +44,12 @@
         <h3>Dodaj członka Rady</h3>
         <form class="pure-form" method="post" action="/voters">
             <fieldset class="pure-group">
-                <input type="text" name="last_name" class="pure-input-1" placeholder="Nazwisko">
-                <input type="text" name="first_name" class="pure-input-1" placeholder="imię">
+                <input type="text" name="name" class="pure-input-1" placeholder="Imię">
+                <input type="text" name="surname" class="pure-input-1" placeholder="Nazwisko">
             </fieldset>
 
             <fieldset class="pure-group">
-                <input type="text" class="pure-input-1" placeholder="Tytuł naukowy" list="science-titles">
+                <input type="text" name="title" class="pure-input-1" placeholder="Tytuł naukowy" list="science-titles">
                 <datalist id="science-titles">
                     <option>Prof. dr hab. inż.</option>
                     <option>Prof. dr hab.</option>
@@ -66,22 +57,25 @@
                     <option>Prof. nzw. dr hab.</option>
                     <option>Dr hab. inż</option>
                     <option>Dr hab.</option>
+                    <option>Dr inż.</option>
+                    <option>Dr</option>
                 </datalist>
-                <input type="text" class="pure-input-1" placeholder="Kierunek" list="specialties">
-                <datalist id="specialties">
-                    <option>Automatyka i Robotyka</option>
-                    <option>Mechatronika</option>
+                <input type="text" name="institute" class="pure-input-1" placeholder="Instytut" list="institutes">
+                <datalist id="institutes">
+                    <option>Instytut Automatyki i Robotyki</option>
+                    <option>Instytut Mikromechaniki i Fotoniki</option>
+                    <option>Instytut Metrologii i Inżynierii Biomedycznej</option>
                 </datalist>
-                <input type="text" class="pure-input-1" placeholder="Specjalność">
+                <input type="text" name="specialty" class="pure-input-1" placeholder="Specjalność">
             </fieldset>
 
             <label for="privileges" class="pure-checkbox">
-                <input id="privileges" type="checkbox" value="1" checked>
+                <input id="privileges" name="privileges" type="checkbox" value="1" checked>
                 Pełne uprawnienia
             </label>
 
             <div class="action-bar">
-                <button id="button-cancel-add-member" class="pure-button">Anuluj</button>
+                <button type="button" id="button-cancel-add-member" class="pure-button">Anuluj</button>
                 <button type="reset" class="pure-button">Wyczyść</button>
                 <button type="submit" class="pure-button button-primary">Dodaj</button>
             </div>

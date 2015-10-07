@@ -8,15 +8,15 @@
 <body>
 <% include homeheader.ejs %>
 <section>
-    <form class="pure-form pure-form-stacked">
+    <form class="pure-form pure-form-stacked" method="post" action="/signup">
         <fieldset>
             <legend>Zarejestruj się w systemie</legend>
 
             <label for="login">Login</label>
-            <input id="login" type="text">
+            <input id="login" name="login" type="text">
 
             <label for="password">Hasło</label>
-            <input id="password" type="password">
+            <input id="password" name="password" type="password">
 
             <label for="password2">Powtórz hasło</label>
             <input id="password2" type="password">

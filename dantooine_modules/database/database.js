@@ -11,7 +11,7 @@ var configuration = require('./config');
  * load data models before first use
  */
 var Council = require("./models/council");
-var CouncilMember = require("./models/voter");
+var Voter = require("./models/voter");
 var Device = require("./models/device");
 var Session = require("./models/session");
 var User = require("./models/user");
@@ -28,7 +28,7 @@ function initialize() {
 
 
 module.exports.Council = Council;
-module.exports.CouncilMember = CouncilMember;
+module.exports.Voter = Voter;
 module.exports.Device = Device;
 module.exports.Session = Session;
 module.exports.User = User;

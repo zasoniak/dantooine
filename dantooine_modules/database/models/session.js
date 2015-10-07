@@ -12,6 +12,7 @@ var sessionSchema = new Schema({
     type: String,
     presence:[{type:Schema.Types.ObjectId, ref: 'Voter'}],
     date: Date,
+    state: Number,
     votings: [{type: Schema.Types.ObjectId, ref: 'Voting'}]
 });
 

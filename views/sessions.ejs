@@ -44,16 +44,17 @@
         <form class="pure-form" method="post" action="/sessions">
             <fieldset class="pure-group">
                 <input type="text" name="name" class="pure-input-1" placeholder="Identyfikator">
-                <input type="date" name="date" class="pure-input-1" placeholder="Data">
+                <input type="text" name="date" class="pure-input-1" id="datepicker" placeholder="Data">
+                <textarea name="description" class="pure-input-1" placeholder="Opis"></textarea>
             </fieldset>
 
             <label for="mode-standard" class="pure-radio">
-                <input id="mode-standard" type="radio" name="mode" value="1" checked>
+                <input id="mode-standard" type="radio" name="type" value="standard" checked>
                 Standardowa
             </label>
 
             <label for="mode-special" class="pure-radio">
-                <input id="mode-special" type="radio" name="mode" value="2">
+                <input id="mode-special" type="radio" name="type" value="special">
                 Nadzwyczajna
             </label>
 
