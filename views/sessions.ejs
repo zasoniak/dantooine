@@ -41,19 +41,30 @@
 <div id="popup-new-session" class="overlay">
     <section class="popup">
         <h3>Nowa sesja</h3>
-        <form class="pure-form">
+        <form class="pure-form" method="post" action="/sessions">
             <fieldset class="pure-group">
-                <input type="text" class="pure-input-1" placeholder="Identyfikator">
-                <input type="date" class="pure-input-1" placeholder="Data">
+                <input type="text" name="name" class="pure-input-1" placeholder="Identyfikator">
+                <input type="date" name="date" class="pure-input-1" placeholder="Data">
             </fieldset>
 
+            <label for="mode-standard" class="pure-radio">
+                <input id="mode-standard" type="radio" name="mode" value="1" checked>
+                Standardowa
+            </label>
+
+            <label for="mode-special" class="pure-radio">
+                <input id="mode-special" type="radio" name="mode" value="2">
+                Nadzwyczajna
+            </label>
+
             <div class="action-bar">
-                <button id="button-cancel-new-session" class="pure-button">Anuluj</button>
+                <button type="button" id="button-cancel-new-session" class="pure-button">Anuluj</button>
                 <button type="submit" class="pure-button button-primary">Dodaj</button>
             </div>
         </form>
     </section>
 </div>
+<% include footer.ejs %>
 <script src="http://zeptojs.com/zepto.min.js"></script>
 <script>
     $('#button-new-session').on('click', function(e){
@@ -64,6 +75,5 @@
         $('#popup-new-session').removeClass('active');
     });
 </script>
-<% include footer.ejs %>
 </body>
 </html>

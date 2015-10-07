@@ -37,8 +37,11 @@ h2 {
 
 h3 {
     font-size: 1em;
-    font-weight: normal;
+    /*font-weight: normal;*/
     color: darkgreen;
+    padding: 0 0 0.3em;
+    border-bottom: 1px solid lightgray;
+    text-align: left;
 }
 
 .content {
@@ -96,16 +99,14 @@ section > *:last-child {
 /*}*/
 
 section > h3:first-child {
-    padding: 0 0 0.5em;
-    border-bottom: 1px solid lightgray;
-    text-align: left;
+
 }
 
 button:not(:last-child) {
     margin-right: 0.5em;
 }
 
-button[type="submit"]:only-of-type {
+form button, form a {
     margin-top: 1em;
 }
 
@@ -128,8 +129,16 @@ button[type="submit"]:only-of-type {
     color: darkgreen;
 }
 
+.left {
+    float: left;
+}
+
 .right {
     float: right;
+}
+
+.cleared {
+    clear: both;
 }
 
 .council-table {
@@ -165,6 +174,10 @@ button[type="submit"]:only-of-type {
     visibility: visible;
 }
 
+.even-layout {
+    table-layout: fixed;
+}
+
 .cell-action {
     text-align: right;
 }
@@ -181,6 +194,10 @@ button[type="submit"]:only-of-type {
 .button-yellow:hover {
     background-color: goldenrod;
     color: white;
+}
+
+.button-xlarge {
+    font-size: 150%;
 }
 
 .overlay {
@@ -204,4 +221,10 @@ button[type="submit"]:only-of-type {
     width: 40%;
     position: relative;
     transition: all 5s ease-in-out;
+}
+
+.tip {
+    font-size: 90%;
+    color: #aaa;
+    font-style: italic;
 }
