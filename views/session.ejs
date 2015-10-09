@@ -10,7 +10,7 @@
 <section>
     <h3><%= title %></h3>
     <div>
-        <table class="pure-table council-table even-layout">
+        <table class="pure-table dantooine-table even-layout">
             <thead>
             <tr>
                 <th>Data</th>
@@ -20,7 +20,7 @@
             </thead>
             <tbody>
             <tr>
-                <td>28.04.2015</td>
+                <td><%= moment(session.date).format("LL") + ' (' + moment(session.date).fromNow() + ')' %></td>
                 <td>Nadzwyczajna</td>
                 <td>Nierozpoczęta</td>
             </tr>
@@ -38,42 +38,22 @@
 <section>
     <h3>Głosowania</h3>
     <ol class="voting-list">
+        <% for (var i=0; i<session.votings.length; i++) { %>
         <li>
-            <p>Czy powinniśmy zapłacić studentom dużo monet?</p>
+            <p><%= session.votings[i].question %></p>
             <ol>
                 <li>tak, dużo monet</li>
                 <li>nie, więcej monet</li>
             </ol>
         </li>
-        <li>
-            <p>Czy powinniśmy zainwestować w wydziałowego McDonalda?</p>
-            <ol>
-                <li>tak</li>
-                <li>tak, ale zbudujmy KFC</li>
-            </ol>
-        </li>
-        <li>
-            <p>Czy powinniśmy w Mechaniku urządzić game room?</p>
-            <ol>
-                <li>tak</li>
-                <li>nie</li>
-            </ol>
-        </li>
-        <li>
-            <p>Kto powinien zostać Dziekanem?</p>
-            <ol>
-                <li>Michał Bartyś</li>
-                <li>Bartyś, Michał</li>
-                <li>dr hab. M. Bartyś</li>
-            </ol>
-        </li>
+        <% } %>
     </ol>
 </section>
 <div id="popup-add-question" class="overlay">
     <section class="popup">
         <h3>Dodaj głosowanie</h3>
-        <form class="pure-form">
-            <%- hidden_field_tag('session_id', session_id) %>
+        <form class="pure-form" method="post" action="/voting">
+            <%- hidden_field_tag('session_id', session.id) %>
 
             <fieldset class="pure-group">
                 <input type="text" name="question" class="pure-input-1" placeholder="Pytanie">

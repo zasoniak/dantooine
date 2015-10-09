@@ -12,28 +12,26 @@
         <button id="button-new-session" class="pure-button button-primary">Nowa sesja</button>
     </div>
     <div>
-        <table class="pure-table pure-table-horizontal council-table">
+        <table class="pure-table pure-table-horizontal dantooine-table clickable-rows even-layout">
             <thead>
             <tr>
                 <th>Data</th>
                 <th>Sesja</th>
-                <th>Liczba głosowań</th>
+                <th>Głosowania</th>
                 <th>Obecnych</th>
+                <th>Status</th>
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <td>25 marca 2015</td>
-                <th>Jabadabadu</th>
-                <td>8</td>
-                <td>48 (95%)</td>
+            <% for (var i=0; i<sessions.length; i++) { %>
+            <tr onclick="window.document.location='/session/<%= sessions[i].id %>';">
+                <td><%= moment(sessions[i].date).format("ll") + ' (' + moment(sessions[i].date).fromNow() + ')' %></td>
+                <th><%= sessions[i].name %></th>
+                <td><%= sessions[i].votings.length %></td>
+                <td><%= sessions[i].presence.length %></td>
+                <td>Nierozpoczęta</td>
             </tr>
-            <tr>
-                <td>13 lutego 2015</td>
-                <th>Olaboga</th>
-                <td>13</td>
-                <td>50 (100%)</td>
-            </tr>
+            <% } %>
             </tbody>
         </table>
     </div>

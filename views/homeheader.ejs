@@ -1,3 +1,5 @@
+<div class="notice success"><%= (typeof message == 'undefined') ? '' : message %></div>
+<div class="notice error"><%= (typeof error == 'undefined') ? '' : error %></div>
 <header class="content">
     <a href="/">
         <img id="logo" src="/images/WM3.png">
@@ -7,5 +9,5 @@
         <small>Politechnika Warszawska</small>
         <br/>Wydział Mechatroniki
     </h2>
-    <h1><%= system %></h1>
+    <h1><%= site.title %></h1>
 </header>

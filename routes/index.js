@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var pdf = require('../dantooine_modules/document-generator/documentGenerator');
+var moment = require('moment');
+moment.locale('pl');
 
 /* PRIVATE ZONE */
 module.exports = function(passport)
@@ -23,11 +25,14 @@ module.exports = function(passport)
 
     /* GET sessions screen */
     router.get('/sessions', isLoggedIn, function (request, response, next) {
-        response.render('sessions', { title: 'Sesje i głosowania' });
+        var Session = require('../dantooine_modules/database/database').Session;
+        Session.find({}, function (err, sessions) {
+            if (err) errorHandler(err);
+            response.render('sessions', { title: 'Rada Wydziału', sessions: sessions, moment: moment });
+        });
     });
 
     router.post('/sessions', function (request, response, next) {
-        console.log('Podano ' + request.body.name);
         var Session = require('../dantooine_modules/database/database').Session;
         var session = new Session(
             {
@@ -44,33 +49,74 @@ module.exports = function(passport)
     });
 
     /* POST new session voting*/
-    router.post('voting', function (request, response, next) {
+    router.post('/voting', function (request, response, next) {
         var id = request.body.session_id;
-        response.redirect('/session/'+id);
+        var Voting = require('../dantooine_modules/database/database').Voting;
+        var Session = require('../dantooine_modules/database/database').Session;
+        Session.findById(id, function (err, session) {
+            if (err) errorHandler(err);
+            var variants = [];
+            for(var i=0; i<request.body.answers.length; i++)
+            {
+                if (request.body.answers[i] != '') {
+                    variants[i]={
+                        id: i,
+                        content: request.body.answers[i]
+                    };
+                }
+            }
+            var voting = new Voting({
+                _session: session._id,
+                question: request.body.question,
+                variants: variants,
+                authorization_level:1,
+                type:0
+            });
+            session.votings.push(voting);
+            session.save(function (err) {
+                if (err) errorHandler(err);
+                voting.save(function (err) {
+                    if (err) errorHandler(err);
+                    request.flash('message', 'Pomyślnie dodano głosowanie');
+                    response.redirect('/session/'+id);
+                })
+            });
+        });
     });
 
     /* GET session info */
     router.get('/session/:id', function (request, response, next) {
         var id = request.params.id;
         var Session = require('../dantooine_modules/database/database').Session;
-        Session.findById(id, function(err,session) {
+        Session.findById(id, function(err, session) {
             if(err) errorHandler(err);
-            response.render('session', { title: session.name, session_id: id });
+            response.render('session',
+                {
+                    title: session.name,
+                    session: session,
+                    moment: moment,
+                    message: request.flash('message')
+                });
         });
     });
 
     /* GET voters overview */
     router.get('/voters', function (request, response, next) {
         var Voter = require('../dantooine_modules/database/database').Voter;
-        Voter.find({}, function (err, voters) {
-            if (err) errorHandler(err);
-            response.render('voters', { title: 'Rada Wydziału', voters: voters });
+        Voter.find().sort({ surname: 1, name: 1 }).exec(
+            function (err, voters) {
+                if (err) errorHandler(err);
+                response.render('voters',
+                    {
+                        title: 'Rada Wydziału',
+                        voters: voters,
+                        message: request.flash('message')
+                    });
         });
     });
 
     /* POST new voter */
     router.post('/voters', function (request, response, next) {
-        console.log('Podano ' + request.body.last_name);
         var Voter = require('../dantooine_modules/database/database').Voter;
         var voter = new Voter(
             {
@@ -84,6 +130,7 @@ module.exports = function(passport)
         voter.save(function(err)
         {
             if(err) errorHandler(err);
+            request.flash('message', 'Pomyślnie dodano głosującego '+voter.name+' '+voter.surname);
             response.redirect('/voters');
         });
     });
@@ -91,8 +138,12 @@ module.exports = function(passport)
     /* PUBLIC ZONE */
 
     /* GET signup page */
-    router.get('/signup', function (req, res, next) {
-        res.render('signup', { title: 'Elektroniczne głosowanie', system: 'System elektronicznego głosowania Rady Wydziału' });
+    router.get('/signup', function (request, response, next) {
+        response.render('signup',
+            {
+                message: request.flash('message'),
+                error: request.flash('error')
+            });
     });
 
     /* GET signup page */
@@ -119,7 +170,11 @@ module.exports = function(passport)
 
     /* GET home page */
     router.get('/', function(request, response, next) {
-        response.render('index', {title: 'Elektroniczne głosowanie', system: 'System elektronicznego głosowania Rady Wydziału', message: request.flash('message')});
+        response.render('index',
+            {
+                message: request.flash('message'),
+                error: request.flash('error')
+            });
     });
 
     /* GET home page. */

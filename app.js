@@ -38,6 +38,11 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
+app.locals.site = {
+    title: 'System elektronicznego głosowania Rady Wydziału',
+    author: 'Spectrum Labs'
+};
+
 var routes = require('./routes/index')(passport);
 
 app.use('/', routes);

@@ -88,18 +88,38 @@ section > *:last-child {
     margin: 1em 2em 2em;
 }
 
-/*section > h3:first-child {*/
-    /*display: inline-block;*/
-    /*margin: 0 0 0;*/
-    /*padding: 0.5em 2em;*/
-    /*border: 1px solid silver;*/
-    /*border-top-width: 0;*/
-    /*border-left-width: 0;*/
-    /*border-radius: 0 0 0.5em 0;*/
-/*}*/
+.notice {
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 60%;
+    margin: 0 auto;
+    position: absolute;
+    display: block;
+    padding: 0.5em 0;
+    text-align: center;
+    border-radius: 0 0 0.5em 0.5em;
+    box-shadow: 0 0 6px rgba(0,0,0,0.4);
 
-section > h3:first-child {
+    animation-name: pop;
+    animation-duration: 4s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+}
 
+.notice:empty {
+    display: none;
+    animation: none;
+}
+
+.success {
+    background-color: rgba(144, 238, 144, 0.6);
+    color: forestgreen;
+}
+
+.error {
+    background-color: rgba(196, 34, 34, 0.5);
+    color: firebrick;
 }
 
 button:not(:last-child) {
@@ -141,20 +161,28 @@ form button, form a {
     clear: both;
 }
 
-.council-table {
+.dantooine-table {
     width: 100%;
 }
 
-.council-table thead {
+.dantooine-table thead {
     color: darkgreen;
     background-color: whitesmoke;
 }
 
-.council-table tbody th {
+.dantooine-table tbody th {
     text-align: left;
 }
 
-.council-table tr button, .council-table tr a.pure-button {
+.clickable-rows tbody tr {
+    cursor: pointer;
+}
+
+.clickable-rows tbody tr:hover td, .clickable-rows tbody tr:hover th {
+    background-color: mintcream;
+}
+
+.dantooine-table tr button, .dantooine-table tr a.pure-button {
     font-size: 80%;
     margin-top: -0.2em;
     margin-right: 0.5em;
@@ -162,15 +190,15 @@ form button, form a {
     visibility: hidden;
 }
 
-.council-table tr button:last-child, .council-table tr a.pure-button:last-child {
+.dantooine-table tr button:last-child, .dantooine-table tr a.pure-button:last-child {
     margin-right: 0;
 }
 
-.council-table tr:hover button, .council-table tr:hover a.pure-button {
+.dantooine-table tr:hover button, .dantooine-table tr:hover a.pure-button {
     visibility: visible;
 }
 
-.council-table .button-primary {
+.dantooine-table .button-primary {
     visibility: visible;
 }
 
@@ -227,4 +255,12 @@ form button, form a {
     font-size: 90%;
     color: #aaa;
     font-style: italic;
+}
+
+@keyframes pop
+{
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; display: none; }
 }

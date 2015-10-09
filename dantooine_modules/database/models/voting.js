@@ -6,11 +6,10 @@ var Schema = mongoose.Schema;
 
 var votingSchema = new Schema ({
     _session: {type: Schema.Types.ObjectId, ref:'Session'},
-    authorization: String,
-    type: String,
-    title: String,
-    contents: String,
-    variants: [ {id: Number, contents: String}],
+    authorization_level: Number,
+    type: Number,
+    question: String,
+    variants: [ {id: Number, content: String}],
     answers: [{MAC: String, answers: [Number], timestamp: {type: Date, default: Date.now}}],
     extra_voters: [{type: Schema.Types.ObjectId, ref:'Voter'}]
 });

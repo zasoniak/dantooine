@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title><%= title %></title>
+    <title><%= site.title %></title>
     <link rel="stylesheet" href="/stylesheets/pure-min.css">
     <link rel="stylesheet" href="/stylesheets/style.css">
 </head>
 <body>
 <% include homeheader.ejs %>
 <section>
-    <h3><%= message %></h3>
     <form class="pure-form pure-form-stacked" method="post" action="/login">
         <fieldset>
             <legend>Zaloguj się do systemu</legend>
