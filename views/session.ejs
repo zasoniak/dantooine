@@ -28,8 +28,8 @@
         </table>
     </div>
     <div class="action-bar">
-        <button type="button" class="pure-button">Generuj listę obecności<img src="/images/icon_pdf.gif" style="vertical-align: bottom; margin-left: 8px;"/></button>
-        <button type="button" class="pure-button">Generuj raport<img src="/images/icon_pdf.gif" style="vertical-align: bottom; margin-left: 8px;"/></button>
+        <a href="<%= '/session/'+session.id+'/presence' %>" class="pure-button">Generuj listę obecności<img src="/images/icon_pdf.gif" class="filetype"/></a>
+        <button type="button" class="pure-button">Generuj raport<img src="/images/icon_pdf.gif" class="filetype"/></button>
         <button type="button" id="button-add-extra-voter" class="pure-button">Dodaj głosującego</button>
         <button type="button" id="button-add-question" class="pure-button">Dodaj głosowanie</button>
         <a class="pure-button button-primary">Rozpocznij sesję</a>
@@ -37,6 +37,20 @@
 </section>
 <section>
     <h3>Głosowania</h3>
+    <ol class="voting-list">
+        <% for (var i=0; i<session.votings.length; i++) { %>
+        <li>
+            <p><%= session.votings[i].question %></p>
+            <ol>
+                <li>tak, dużo monet</li>
+                <li>nie, więcej monet</li>
+            </ol>
+        </li>
+        <% } %>
+    </ol>
+</section>
+<section>
+    <h3>Dodatkowi głosujący</h3>
     <ol class="voting-list">
         <% for (var i=0; i<session.votings.length; i++) { %>
         <li>

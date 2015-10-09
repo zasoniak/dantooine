@@ -130,6 +130,11 @@ form button, form a {
     margin-top: 1em;
 }
 
+img.filetype {
+    vertical-align: bottom;
+    margin-left: 8px;
+}
+
 .button-primary {
     background-color: darkgreen;
     color: white;

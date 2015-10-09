@@ -84,11 +84,29 @@ module.exports = function(passport)
         });
     });
 
+    /* GET home page. */
+    router.get('/doctest/:id', function (req, res, next) {
+        pdf.getVotingProtocol(id, function (err, votingProtocol) {
+            if (err) errorHandler(err);
+            votingProtocol.pipe(res);
+        });
+    });
+
+    /* GET session info */
+    router.get('/session/:id/presence', function (request, response, next) {
+        var id = request.params.id;
+        pdf.getPresenceList(id, function (err, votingProtocol) {
+           if(err) errorHandler(err);
+            votingProtocol.pipe(response);
+        });
+        //response.download('/doctest/'+id, 'report.pdf');
+    });
+
     /* GET session info */
     router.get('/session/:id', function (request, response, next) {
         var id = request.params.id;
         var Session = require('../dantooine_modules/database/database').Session;
-        Session.findById(id, function(err, session) {
+        Session.findById(id).populate('votings').exec(function(err, session) {
             if(err) errorHandler(err);
             response.render('session',
                 {
@@ -175,15 +193,6 @@ module.exports = function(passport)
                 message: request.flash('message'),
                 error: request.flash('error')
             });
-    });
-
-    /* GET home page. */
-    router.get('/doctest', function (req, res, next) {
-        pdf.getVotingProtocol("560d6895f86f64341cdb3565", function (err, votingProtocol) {
-            if (err)
-                res.render('index', {title: 'Express'});
-            votingProtocol.pipe(res);
-        });
     });
 
     return router;
