@@ -42,8 +42,9 @@
         <li>
             <p><%= session.votings[i].question %></p>
             <ol>
-                <li>tak, dużo monet</li>
-                <li>nie, więcej monet</li>
+                <% for (var j=0; j < session.votings[i].variants.length; j++) { %>
+                <li><%= session.votings[i].variants[j].content %></li>
+                <% } %>
             </ol>
         </li>
         <% } %>
@@ -52,15 +53,6 @@
 <section>
     <h3>Dodatkowi głosujący</h3>
     <ol class="voting-list">
-        <% for (var i=0; i<session.votings.length; i++) { %>
-        <li>
-            <p><%= session.votings[i].question %></p>
-            <ol>
-                <li>tak, dużo monet</li>
-                <li>nie, więcej monet</li>
-            </ol>
-        </li>
-        <% } %>
     </ol>
 </section>
 <div id="popup-add-question" class="overlay">

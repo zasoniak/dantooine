@@ -188,9 +188,10 @@ img.filetype {
 }
 
 .dantooine-table tr button, .dantooine-table tr a.pure-button {
-    font-size: 80%;
-    margin-top: -0.2em;
-    margin-right: 0.5em;
+    font-size: 70%;
+    text-transform: uppercase;
+    margin-top: -0.3em;
+    margin-right: 0.4em;
     margin-bottom: -0.2em;
     visibility: hidden;
 }

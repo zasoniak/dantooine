@@ -13,16 +13,6 @@ module.exports = function(passport)
         res.render('dashboard', { title: 'Dashboard' });
     });
 
-    /* GET session edit */
-    router.get('/session/new', function (req, res, next) {
-        res.render('session_edit', { title: 'Nowa sesja' });
-    });
-
-    /* GET session edit */
-    router.get('/session/edit', function (req, res, next) {
-        res.render('session_edit', { title: 'Edycja sesji' });
-    });
-
     /* GET sessions screen */
     router.get('/sessions', isLoggedIn, function (request, response, next) {
         var Session = require('../dantooine_modules/database/database').Session;
@@ -32,7 +22,7 @@ module.exports = function(passport)
         });
     });
 
-    router.post('/sessions', function (request, response, next) {
+    router.post('/sessions', isLoggedIn, function (request, response, next) {
         var Session = require('../dantooine_modules/database/database').Session;
         var session = new Session(
             {
@@ -103,7 +93,7 @@ module.exports = function(passport)
     });
 
     /* GET session info */
-    router.get('/session/:id', function (request, response, next) {
+    router.get('/session/:id', isLoggedIn, function (request, response, next) {
         var id = request.params.id;
         var Session = require('../dantooine_modules/database/database').Session;
         Session.findById(id).populate('votings').exec(function(err, session) {
@@ -119,7 +109,7 @@ module.exports = function(passport)
     });
 
     /* GET voters overview */
-    router.get('/voters', function (request, response, next) {
+    router.get('/voters', isLoggedIn, function (request, response, next) {
         var Voter = require('../dantooine_modules/database/database').Voter;
         Voter.find().sort({ surname: 1, name: 1 }).exec(
             function (err, voters) {
@@ -131,6 +121,28 @@ module.exports = function(passport)
                         message: request.flash('message')
                     });
         });
+    });
+
+    /* DELETE voter ajax request */
+    router.delete('/voters/:id', isAjax, function (request, response, next) {
+        var Voter = require('../dantooine_modules/database/database').Voter;
+        Voter.findByIdAndRemove(request.params.id).exec();
+        response.sendStatus(204);
+    });
+
+    /* EDIT voter ajax request */
+    router.put('/voters/:id', isAjax, function (request, response, next) {
+        var Voter = require('../dantooine_modules/database/database').Voter;
+        Voter.findByIdAndUpdate(request.params.id,
+            {
+                name: request.body.name,
+                surname: request.body.surname,
+                title: request.body.title,
+                faculty: request.body.institute,
+                area_of_interests: request.body.specialty,
+                privileges: request.body.privileges
+            }).exec();
+        response.sendStatus(204);
     });
 
     /* POST new voter */
@@ -205,5 +217,13 @@ function isLoggedIn(request, response, next) {
         return next();
     // if they aren't redirect them to the starting page
     response.redirect('/');
+}
+
+function isAjax(request, response, next) {
+    // if request is ajax, carry on
+    if (request.xhr)
+        return next();
+    // if not, send error page
+    response.sendStatus(403);
 }
 

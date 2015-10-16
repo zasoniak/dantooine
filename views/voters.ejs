@@ -23,13 +23,16 @@
             </thead>
             <tbody>
             <% for (var i=0; i<voters.length; i++) { %>
-            <tr>
+            <tr data-id="<%=voters[i].id%>">
                 <td><%= i+1 %></td>
-                <th><%= voters[i].surname + ', ' + voters[i].name %></th>
+                <th data-name="<%=voters[i].name%>" data-surname="<%=voters[i].surname%>"><%= voters[i].surname + ', ' + voters[i].name %></th>
                 <td><%= voters[i].title %></td>
                 <td><%= voters[i].faculty %></td>
                 <td><%= voters[i].area_of_interests %></td>
-                <td class="cell-action"><button class="pure-button button-yellow">Edytuj</button><button class="pure-button button-red">Usuń</button></td>
+                <td class="cell-action">
+                    <button type="button" class="pure-button button-yellow">Edytuj</button>
+                    <button type="button" data-url="<%= "/voters/"+voters[i].id %>" data-method="delete" class="pure-button button-delete button-red">Usuń</button>
+                </td>
             </tr>
             <% } %>
             </tbody>
@@ -91,6 +94,49 @@
         </div>
     </section>
 </div>
+<div id="popup3" class="overlay">
+    <section class="popup">
+        <h3>Edytuj członka Rady</h3>
+        <form class="pure-form" method="post" action="/voters">
+            <fieldset class="pure-group">
+                <input type="text" name="name" class="pure-input-1" placeholder="Imię">
+                <input type="text" name="surname" class="pure-input-1" placeholder="Nazwisko">
+            </fieldset>
+
+            <fieldset class="pure-group">
+                <input type="text" name="title" class="pure-input-1" placeholder="Tytuł naukowy" list="science-titles">
+                <datalist id="science-titles">
+                    <option>Prof. dr hab. inż.</option>
+                    <option>Prof. dr hab.</option>
+                    <option>Prof. nzw. dr hab. inż.</option>
+                    <option>Prof. nzw. dr hab.</option>
+                    <option>Dr hab. inż</option>
+                    <option>Dr hab.</option>
+                    <option>Dr inż.</option>
+                    <option>Dr</option>
+                </datalist>
+                <input type="text" name="institute" class="pure-input-1" placeholder="Instytut" list="institutes">
+                <datalist id="institutes">
+                    <option>Instytut Automatyki i Robotyki</option>
+                    <option>Instytut Mikromechaniki i Fotoniki</option>
+                    <option>Instytut Metrologii i Inżynierii Biomedycznej</option>
+                </datalist>
+                <input type="text" name="specialty" class="pure-input-1" placeholder="Specjalność">
+            </fieldset>
+
+            <label for="privileges" class="pure-checkbox">
+                <input id="privileges" name="privileges" type="checkbox" value="1" checked>
+                Pełne uprawnienia
+            </label>
+
+            <div class="action-bar">
+                <button type="button" id="button-cancel-edit-member" class="pure-button">Anuluj</button>
+                <button type="reset" class="pure-button">Wyczyść</button>
+                <button type="button" id="button-submit-edit-member" data-method="put" class="pure-button button-primary">Akceptuj zmiany</button>
+            </div>
+        </form>
+    </section>
+</div>
 <script src="http://zeptojs.com/zepto.min.js"></script>
 <script>
     $('#button-add-member').on('click', function(e){
@@ -99,6 +145,31 @@
 
     $('#button-cancel-add-member').on('click', function(e){
         $('#popup1').removeClass('active');
+    });
+
+    $('button.button-delete').on('click', function (e) {
+        $.ajax({type:'delete', url:$(this).attr('data-url')});
+        location.reload();
+    });
+
+    $('button.button-yellow').on('click', function (e) {
+        var parentRow = $(this).parent().parent();
+        var popup = $("#popup3");
+        popup.addClass('active');
+        popup.find('input[name=name]').val(parentRow.children().eq(1).attr('data-name'));
+        popup.find('input[name=surname]').val(parentRow.children().eq(1).attr('data-surname'));
+        popup.find('input[name=title]').val(parentRow.children().eq(2).html());
+        popup.find('input[name=institute]').val(parentRow.children().eq(3).html());
+        popup.find('input[name=specialty]').val(parentRow.children().eq(4).html());
+        $('#button-submit-edit-member').on('click', function (e) {
+            $.ajax({type:'put', url:'/voters/'+parentRow.attr('data-id'), data:popup.find('form').serialize()});
+            location.reload();
+        });
+    });
+
+    $('#button-cancel-edit-member').on('click', function(e){
+        $('#popup3').removeClass('active');
+        $('#button-submit-edit-member').off('click');
     });
 </script>
 <% include footer.ejs %>
