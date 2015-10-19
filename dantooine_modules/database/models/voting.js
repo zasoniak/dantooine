@@ -6,12 +6,26 @@ var Schema = mongoose.Schema;
 
 var votingSchema = new Schema ({
     _session: {type: Schema.Types.ObjectId, ref:'Session'},
-    authorization_level: Number,
     type: Number,
+    allowed_to_vote: Number,
     question: String,
-    variants: [ {id: Number, content: String}],
-    answers: [{MAC: String, answers: [Number], timestamp: {type: Date, default: Date.now}}],
-    extra_voters: [{type: Schema.Types.ObjectId, ref:'Voter'}]
+    variants: [{
+        id: Number,
+        content: String
+    }],
+    answers: [{
+        MAC: String,
+        answers: [{id: Number, value:Number}],
+        timestamp: {type: Date, default: Date.now}
+    }],
+    extra_voters: [{
+        role: String,
+        name: String,
+        surname: String,
+        title: String
+    }],
+    quorum: Boolean,
+    absolute_majority: Boolean
 });
 
 module.exports = mongoose.model('Voting', votingSchema);

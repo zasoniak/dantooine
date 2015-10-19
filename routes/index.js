@@ -46,21 +46,24 @@ module.exports = function(passport)
         Session.findById(id, function (err, session) {
             if (err) errorHandler(err);
             var variants = [];
-            for(var i=0; i<request.body.answers.length; i++)
+            for(var i=0; i<request.body.variants.length; i++)
             {
-                if (request.body.answers[i] != '') {
+                if (request.body.variants[i] != '') {
                     variants[i]={
                         id: i,
-                        content: request.body.answers[i]
+                        content: request.body.variants[i]
                     };
                 }
             }
+            console.log(request.body);
             var voting = new Voting({
                 _session: session._id,
+                type: request.body.variants_type,
                 question: request.body.question,
                 variants: variants,
-                authorization_level:1,
-                type:0
+                allowed_to_vote: request.body.allowed_to_vote,
+                quorum: (request.body.quorum === "on"),
+                absolute_majority: (request.body.absolute_majority === "on")
             });
             session.votings.push(voting);
             session.save(function (err) {
@@ -138,10 +141,11 @@ module.exports = function(passport)
                 name: request.body.name,
                 surname: request.body.surname,
                 title: request.body.title,
-                faculty: request.body.institute,
-                area_of_interests: request.body.specialty,
-                privileges: request.body.privileges
+                institute: request.body.institute,
+                specialty: request.body.specialty,
+                group: request.body.group
             }).exec();
+        request.flash('message', 'Pomyślnie edytowano głosującego '+voter.name+' '+voter.surname);
         response.sendStatus(204);
     });
 
@@ -153,9 +157,9 @@ module.exports = function(passport)
                 name: request.body.name,
                 surname: request.body.surname,
                 title: request.body.title,
-                faculty: request.body.institute,
-                area_of_interests: request.body.specialty,
-                privileges: request.body.privileges
+                institute: request.body.institute,
+                specialty: request.body.specialty,
+                group: request.body.group
             });
         voter.save(function(err)
         {

@@ -27,8 +27,8 @@
                 <td><%= i+1 %></td>
                 <th data-name="<%=voters[i].name%>" data-surname="<%=voters[i].surname%>"><%= voters[i].surname + ', ' + voters[i].name %></th>
                 <td><%= voters[i].title %></td>
-                <td><%= voters[i].faculty %></td>
-                <td><%= voters[i].area_of_interests %></td>
+                <td><%= voters[i].institute %></td>
+                <td><%= voters[i].specialty %></td>
                 <td class="cell-action">
                     <button type="button" class="pure-button button-yellow">Edytuj</button>
                     <button type="button" data-url="<%= "/voters/"+voters[i].id %>" data-method="delete" class="pure-button button-delete button-red">Usuń</button>
@@ -72,10 +72,15 @@
                 <input type="text" name="specialty" class="pure-input-1" placeholder="Specjalność">
             </fieldset>
 
-            <label for="privileges" class="pure-checkbox">
-                <input id="privileges" name="privileges" type="checkbox" value="1" checked>
-                Pełne uprawnienia
-            </label>
+            <fieldset>
+                <select id="group" name="group" class="pure-input-1">
+                    <option value="1">Profesorowie i doktorzy habilitowani</option>
+                    <option value="2">Przedstawiciele pozostałych nauczycieli akademickich i pracowników wydziału</option>
+                    <option value="3">Przedstawiciele studentów i doktorantów</option>
+                    <option value="4">Osoby zapraszane oraz profesorowie i docenci emerytowani</option>
+                    <option value="5">Sekretarze Rady Wydziału</option>
+                </select>
+            </fieldset>
 
             <div class="action-bar">
                 <button type="button" id="button-cancel-add-member" class="pure-button">Anuluj</button>
@@ -124,10 +129,13 @@
                 <input type="text" name="specialty" class="pure-input-1" placeholder="Specjalność">
             </fieldset>
 
-            <label for="privileges" class="pure-checkbox">
-                <input id="privileges" name="privileges" type="checkbox" value="1" checked>
-                Pełne uprawnienia
-            </label>
+            <select id="group" name="group" class="pure-input-1">
+                <option value="1">Profesorowie i doktorzy habilitowani</option>
+                <option value="2">Przedstawiciele pozostałych nauczycieli akademickich i pracowników wydziału</option>
+                <option value="3">Przedstawiciele studentów i doktorantów</option>
+                <option value="4">Osoby zapraszane oraz profesorowie i docenci emerytowani</option>
+                <option value="5">Sekretarz Rady Wydziału</option>
+            </select>
 
             <div class="action-bar">
                 <button type="button" id="button-cancel-edit-member" class="pure-button">Anuluj</button>

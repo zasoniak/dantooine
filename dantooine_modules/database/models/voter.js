@@ -3,17 +3,14 @@
  */
 
 var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
 
 var voterSchema = mongoose.Schema({
     name: String,
     surname: String,
     title: String,
-    faculty: String,
-    area_of_interests: String,
-    privileges: String,
-    external_role: String,
-    device: {type: Schema.Types.ObjectId, ref: 'Device'}
+    institute: String,
+    specialty: String,
+    group: Number
 });
 
 module.exports = mongoose.model('Voter', voterSchema);
