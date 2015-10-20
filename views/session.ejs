@@ -30,7 +30,7 @@
     <div class="action-bar">
         <a href="<%= '/session/'+session.id+'/presence' %>" class="pure-button">Generuj listę obecności<img src="/images/icon_pdf.gif" class="filetype"/></a>
         <button type="button" class="pure-button">Generuj raport<img src="/images/icon_pdf.gif" class="filetype"/></button>
-        <button type="button" id="button-add-extra-voter" class="pure-button">Dodaj skrutatora</button>
+        <button type="button" id="button-add-counter" class="pure-button">Dodaj skrutatora</button>
         <button type="button" id="button-add-question" class="pure-button">Dodaj głosowanie</button>
         <a class="pure-button button-primary">Rozpocznij sesję</a>
     </div>
@@ -67,13 +67,13 @@
 
             <fieldset>
                 <legend>Odpowiedzi</legend>
+                <input id="radio-yes-no" name="variants_type" type="radio" value="1" checked>
                 <label for="radio-yes-no" class="pure-radio">
-                    <input id="radio-yes-no" name="variants_type" type="radio" value="1" checked>
                     Tak/Nie
                 </label>
 
+                <input id="radio-multiple-yes-no" name="variants_type" type="radio" value="2">
                 <label for="radio-multiple-yes-no" class="pure-radio">
-                    <input id="radio-multiple-yes-no" name="variants_type" type="radio" value="2">
                     Wielokrotnego wyboru
                 </label>
 
@@ -86,24 +86,24 @@
             <fieldset class="pure-control-group">
                 <legend>Głosujący</legend>
                 <div class="pure-u-1-2" style="float: left">
+                    <input id="radio-voters-all" name="allowed_to_vote" type="radio" value="4" checked>
                     <label for="radio-voters-all" class="pure-radio">
-                        <input id="radio-voters-all" name="allowed_to_vote" type="radio" value="4" checked>
                         Wszyscy
                     </label>
 
+                    <input id="radio-voters-privileged" name="allowed_to_vote" type="radio" value="2">
                     <label for="radio-voters-privileged" class="pure-radio">
-                        <input id="radio-voters-privileged" name="allowed_to_vote" type="radio" value="1">
                         Tylko pracownicy samodzielni
                     </label>
                 </div>
                 <div class="pure-u-1-2" style="float: left">
+                    <input id="check-quorum" name="quorum" type="checkbox">
                     <label for="check-quorum" class="pure-checkbox">
-                        <input id="check-quorum" name="quorum" type="checkbox">
                         Kworum
                     </label>
 
+                    <input id="check-absolute-majority" name="absolute" type="checkbox">
                     <label for="check-absolute-majority" class="pure-checkbox">
-                        <input id="check-absolute-majority" name="absolute" type="checkbox">
                         Większość bezwzględna
                     </label>
                 </div>
@@ -112,6 +112,23 @@
             <div class="action-bar">
                 <button type="button" id="button-cancel-add-question" class="pure-button">Anuluj</button>
                 <button type="reset" class="pure-button">Wyczyść</button>
+                <button type="submit" class="pure-button button-primary">Dodaj</button>
+            </div>
+        </form>
+    </section>
+</div>
+<div id="popup-add-counter" class="overlay">
+    <section class="popup">
+        <h3>Dodaj członka Komisji Skrutacyjnej</h3>
+        <form class="pure-form" method="post" action="/sessions/counter">
+            <fieldset class="pure-group">
+                <input type="text" name="title" class="pure-input-1" placeholder="Tytuł">
+                <input type="text" name="name" class="pure-input-1" placeholder="Imię">
+                <input type="text" name="surname" class="pure-input-1" placeholder="Nazwisko">
+            </fieldset>
+
+            <div class="action-bar">
+                <button type="button" id="button-cancel-add-counter" class="pure-button">Anuluj</button>
                 <button type="submit" class="pure-button button-primary">Dodaj</button>
             </div>
         </form>
@@ -126,6 +143,15 @@
 
     $('#button-cancel-add-question').on('click', function(){
         $('#popup-add-question').removeClass('active');
+    });
+
+    $('#button-add-counter').on('click', function () {
+        $('#popup-add-counter').addClass('active');
+    });
+
+
+    $('#button-cancel-add-counter').on('click', function(){
+        $('#popup-add-counter').removeClass('active');
     });
 
     var div = $('#div-variants');

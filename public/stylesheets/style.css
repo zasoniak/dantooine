@@ -272,6 +272,61 @@ img.filetype {
     font-style: italic;
 }
 
+input[type=radio] + label, input[type=checkbox] + label {
+    display: inline-block;
+    cursor: pointer;
+    position: relative;
+    padding-left: 25px;
+    margin-right: 15px;
+}
+
+input[type=radio], input[type=checkbox] {
+    display: none;
+}
+
+input[type=radio] + label:before, input[type=checkbox] + label:before {
+    content: "";
+    display: inline-block;
+
+    width: 16px;
+    height: 16px;
+
+    margin-right: 1em;
+    position: absolute;
+    left: 0;
+    bottom: 3px;
+    background-color: rgba(0, 0, 0, .1);
+    box-shadow: inset 0px 2px 3px 0px rgba(0, 0, 0, .3), 0px 1px 0px 0px rgba(255, 255, 255, .8);
+}
+
+input[type=radio] + label:before {
+    border-radius: 8px;
+}
+
+input[type=checkbox] + label:before {
+    border-radius: 3px;
+}
+
+input[type=radio]:checked + label:before {
+    content: "\2022";
+    color: #f3f3f3;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, .2);
+    background-color: forestgreen;
+    font-size: 21px;
+    text-align: center;
+    line-height: 13px;
+}
+
+input[type=checkbox]:checked + label:before {
+    content: "\2713";
+    color: #f3f3f3;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, .2);
+    background-color: forestgreen;
+    font-size: 18px;
+    text-align: center;
+    line-height: 16px;
+}
+
 @keyframes pop
 {
     0% { opacity: 0; }
