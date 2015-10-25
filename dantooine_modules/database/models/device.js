@@ -5,11 +5,17 @@
 var mongoose = require('mongoose');
 
 var deviceSchema = mongoose.Schema({
-    number: Number,
     MAC: String,
-    type: String,
-    authorization: String,
-    firmware: Number
+    authorization: Number,
+    peripheral:
+    {
+        id: String,
+        address: String,
+        addressType: String,
+        connectable: String,
+        advertisement: String,
+        rssi: String
+    }
 });
 
 // create the model for council and expose it to our app
