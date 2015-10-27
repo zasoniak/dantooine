@@ -1,0 +1,12 @@
+.is-today .pika-button {
+    color: forestgreen;
+}
+
+.is-selected .pika-button {
+    color: #fff;
+    background: forestgreen;
+}
+
+.pika-button:hover {
+    background: silver;
+}

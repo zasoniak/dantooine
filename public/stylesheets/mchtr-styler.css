@@ -44,6 +44,10 @@ h3 {
     text-align: left;
 }
 
+.pure-form input[type]:focus, .pure-form select:focus {
+    border-color: forestgreen;
+}
+
 .content {
     margin: 1em auto;
     width: 60%;
@@ -250,7 +254,7 @@ img.filetype {
     left: 0;
     right: 0;
     background: rgba(0, 0, 0, 0.5);
-    transition: opacity 500ms;
+    transition: opacity 300ms;
     visibility: hidden;
     opacity: 0;
 }
@@ -263,7 +267,7 @@ img.filetype {
     margin: 10em auto 0;
     width: 40%;
     position: relative;
-    transition: all 5s ease-in-out;
+    transition: all 400ms ease-in-out;
 }
 
 .tip {

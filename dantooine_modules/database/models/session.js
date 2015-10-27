@@ -6,13 +6,20 @@ var Schema = mongoose.Schema;
 
 
 var sessionSchema = new Schema({
-    _council:{type:Schema.Types.ObjectId, ref: 'Council'},
     name: String,
     description: String,
     type: String,
-    presence:[{type:Schema.Types.ObjectId, ref: 'Voter'}],
+    presence: [{type: Schema.Types.ObjectId, ref: 'Voter'}],
+    supervisors: [
+        {
+            role: String,
+            name: String,
+            surname: String
+        }
+    ],
     date: Date,
     state: Number,
+    devices: [{type: Schema.Types.ObjectId, ref: 'Device'}],
     votings: [{type: Schema.Types.ObjectId, ref: 'Voting'}]
 });
 

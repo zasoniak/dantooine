@@ -3,7 +3,7 @@
 <head>
     <title><%= title %></title>
     <link rel="stylesheet" href="/stylesheets/pure-min.css">
-    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/stylesheets/mchtr-styler.css">
 </head>
 <body>
 <% include header.ejs %>
@@ -52,8 +52,32 @@
 </section>
 <section>
     <h3>Komisja Skrutacyjna</h3>
-    <ol class="voting-list">
-    </ol>
+    <div>
+        <table class="pure-table pure-table-horizontal dantooine-table">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Imię i nazwisko</th>
+                <th>Funkcja</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <% for (var i = 0; i < session.supervisors.length; i++) { %>
+            <tr data-id="<%= session.supervisors[i].id %>">
+                <td><%= i + 1 %></td>
+                <th><%= session.supervisors[i].name + ' ' + session.supervisors[i].surname %></th>
+                <td><%= session.supervisors[i].role %></td>
+                <td class="cell-action">
+                    <button type="button" data-url="/session/<%= session.id %>/supervisor/<%= session.supervisors[i].id %>" data-method="delete"
+                            class="pure-button button-delete button-red">Usuń
+                    </button>
+                </td>
+            </tr>
+            <% } %>
+            </tbody>
+        </table>
+    </div>
 </section>
 <div id="popup-add-question" class="overlay">
     <section class="popup">
@@ -79,8 +103,8 @@
 
                 <div id="div-variants" class="pure-group" style="display: none; clear: both">
                     <input type="text" name="variants" class="pure-input-1" placeholder="Odpowiedź">
+                    <span class="tip">Wskazówka: po rozpoczęciu wpisywania pojawi się kolejne pole</span>
                 </div>
-                <span class="tip">Wskazówka: po rozpoczęciu wpisywania pojawi się kolejne pole</span>
             </fieldset>
 
             <fieldset class="pure-control-group">
@@ -107,6 +131,16 @@
                         Większość bezwzględna
                     </label>
                 </div>
+                <div>
+                    <input id="check-additional-voters" name="additional_voters" type="checkbox">
+                    <label for="check-additional-voters" class="pure-checkbox">
+                        Dodatkowi głosujący
+                    </label>
+                    <div id="div-extra-voters" class="pure-group" style="display: none; clear: both">
+                        <input type="text" name="additional_voters" class="pure-input-1" placeholder="Głosujący">
+                        <span class="tip">Wskazówka: po rozpoczęciu wpisywania pojawi się kolejne pole</span>
+                    </div>
+                </div>
             </fieldset>
 
             <div class="action-bar">
@@ -120,11 +154,17 @@
 <div id="popup-add-counter" class="overlay">
     <section class="popup">
         <h3>Dodaj członka Komisji Skrutacyjnej</h3>
-        <form class="pure-form" method="post" action="/sessions/counter">
+        <form class="pure-form" method="post" action="/session/<%= session.id %>/counter">
             <fieldset class="pure-group">
-                <input type="text" name="title" class="pure-input-1" placeholder="Tytuł">
                 <input type="text" name="name" class="pure-input-1" placeholder="Imię">
                 <input type="text" name="surname" class="pure-input-1" placeholder="Nazwisko">
+            </fieldset>
+
+            <fieldset class="pure-group">
+                <select name="role" class="pure-input-1">
+                    <option>Przewodniczący</option>
+                    <option>Sekretarz</option>
+                </select>
             </fieldset>
 
             <div class="action-bar">
@@ -135,7 +175,7 @@
     </section>
 </div>
 <% include footer.ejs %>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script type="text/javascript" src="/lib/node_modules/jquery/dist/jquery.min.js"></script>
 <script>
     $('#button-add-question').on('click', function(){
         $('#popup-add-question').addClass('active');
@@ -154,23 +194,32 @@
         $('#popup-add-counter').removeClass('active');
     });
 
-    var div = $('#div-variants');
+    var div_variants = $('#div_variants-variants');
+    var div_voters = $('#div_variants-extra-voters');
 
     function addFormInput() {
-        $('<input type="text" name="variants" class="pure-input-1" placeholder="Odpowiedź">').appendTo(div).one('input', addFormInput).on('focusout', function () {
+        $('<input type="text" name="variants" class="pure-input-1" placeholder="Odpowiedź">').appendTo(div_variants).one('input', addFormInput).on('focusout', function () {
             if (this.val() == '') {
                 this.remove();
             }
         });
     }
 
-    div.children().last().one('input', addFormInput);
+    div_variants.children().last().one('input', addFormInput);
 
     $('form input:radio[name=variants_type]').on('change', function () {
         if ($(this).val() == "2" && this.checked) {
-            div.show();
+            div_variants.show();
         } else {
-            div.hide();
+            div_variants.hide();
+        }
+    });
+
+    $('#check-additional-voters').on('change', function () {
+        if (this.checked) {
+            div_voters.show();
+        } else {
+            div_voters.hide();
         }
     });
 
@@ -182,9 +231,12 @@
         else {
             checkbox.prop('checked', false).prop('disabled', false);
         }
-    })
+    });
 
-
+    $('button.button-delete').on('click', function (e) {
+        $.ajax({type:'delete', url:$(this).attr('data-url')});
+        location.reload();
+    });
 </script>
 </body>
 </html>

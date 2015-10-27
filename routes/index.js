@@ -24,11 +24,12 @@ module.exports = function(passport)
 
     router.post('/sessions', isLoggedIn, function (request, response, next) {
         var Session = require('../dantooine_modules/database/database').Session;
+        var date = moment(request.body.date, "DD.MM.YYYY");
         var session = new Session(
             {
                 name: request.body.name,
                 type: request.body.type,
-                date: request.body.date,
+                date: date.format(),
                 description: request.body.description
             });
         session.save(function(err)
@@ -82,6 +83,41 @@ module.exports = function(passport)
         pdf.getVotingProtocol(id, function (err, votingProtocol) {
             if (err) errorHandler(err);
             votingProtocol.pipe(res);
+        });
+    });
+
+    /* DELETE supervisor */
+    router.delete('/session/:id/supervisor/:supervisor', isAjax, function (request, response, next) {
+        var id = request.params.id;
+        var Session = require('../dantooine_modules/database/database').Session;
+        Session.findById(id, function (err, session) {
+            if (err) errorHandler(err);
+            session.supervisors.pull(request.params.supervisor);
+            session.save(function (err) {
+                if (err) errorHandler(err);
+                request.flash('message', 'Usunięto skrutatora');
+                response.redirect('/session/'+id);
+            });
+        });
+    });
+
+    /* POST new counter */
+    router.post('/session/:id/counter', function (request, response, next) {
+        var id = request.params.id;
+        var Session = require('../dantooine_modules/database/database').Session;
+        Session.findById(id, function (err, session) {
+            if (err) errorHandler(err);
+            var supervisor = {
+                role: request.body.role,
+                name: request.body.name,
+                surname: request.body.surname
+            };
+            session.supervisors.push(supervisor);
+            session.save(function (err) {
+                if (err) errorHandler(err);
+                request.flash('message', 'Pomyślnie dodano skrutatora');
+                response.redirect('/session/'+id);
+            });
         });
     });
 

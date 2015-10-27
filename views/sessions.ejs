@@ -3,7 +3,9 @@
 <head>
     <title><%= title %></title>
     <link rel="stylesheet" href="/stylesheets/pure-min.css">
-    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/lib/node_modules/pikaday/css/pikaday.css" type="text/css">
+    <link rel="stylesheet" href="/stylesheets/mchtr-pikaday-styler.css">
+    <link rel="stylesheet" href="/stylesheets/mchtr-styler.css">
 </head>
 <body>
 <% include header.ejs %>
@@ -16,7 +18,7 @@
             <thead>
             <tr>
                 <th>Data</th>
-                <th>Sesja</th>
+                <th>ID</th>
                 <th>Głosowania</th>
                 <th>Obecnych</th>
                 <th>Status</th>
@@ -64,7 +66,9 @@
     </section>
 </div>
 <% include footer.ejs %>
-<script src="http://zeptojs.com/zepto.min.js"></script>
+<script src="lib/node_modules/jquery/dist/jquery.min.js"></script>
+<script src="lib/node_modules/pikaday/node_modules/moment/moment.js"></script>
+<script src="lib/node_modules/pikaday/pikaday.js"></script>
 <script>
     $('#button-new-session').on('click', function(e){
         $('#popup-new-session').addClass('active');
@@ -72,6 +76,23 @@
 
     $('#button-cancel-new-session').on('click', function(e){
         $('#popup-new-session').removeClass('active');
+    });
+
+    $(document).ready(function() {
+
+        var picker = new Pikaday({
+            field: document.getElementById('datepicker'),
+            format: 'DD.MM.YYYY',
+            firstDay: 1,
+            i18n: {
+                previousMonth : 'poprzedni miesiąc',
+                nextMonth     : 'następny miesiąc',
+                months        : 'styczeń_luty_marzec_kwiecień_maj_czerwiec_lipiec_sierpień_wrzesień_październik_listopad_grudzień'.split('_'),
+                weekdays      : 'niedziela_poniedziałek_wtorek_środa_czwartek_piątek_sobota'.split('_'),
+                weekdaysShort : 'nd_pon_wt_śr_czw_pt_sb'.split('_')
+            }
+        });
+
     });
 </script>
 </body>
