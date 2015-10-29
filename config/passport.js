@@ -8,7 +8,7 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 
 // load up the user model
-var User = require('../dantooine_modules/database/database').User;
+var User = require('../dantooine_modules/database/index').User;
 
 // expose this function to our app using module.exports
 

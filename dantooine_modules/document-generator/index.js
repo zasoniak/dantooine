@@ -28,9 +28,9 @@ var read = require('fs').readFileSync;
 /**
  * required data models imports
  */
-var Voter = require('../database/database').Voter;
-var Voting = require('../database/database').Voting;
-var Session = require('../database/database').Session;
+var Voter = require('../database').Voter;
+var Voting = require('../database').Voting;
+var Session = require('../database').Session;
 
 /**
  * generate presence list for specified council
