@@ -32,7 +32,7 @@
         <button type="button" class="pure-button">Generuj raport<img src="/images/icon_pdf.gif" class="filetype"/></button>
         <button type="button" id="button-add-counter" class="pure-button">Dodaj skrutatora</button>
         <button type="button" id="button-add-question" class="pure-button">Dodaj głosowanie</button>
-        <a class="pure-button button-primary">Rozpocznij sesję</a>
+        <a href="<%= '/session/'+session.id+'/cockpit' %>" class="pure-button button-primary">Rozpocznij sesję</a>
     </div>
 </section>
 <section>
@@ -101,9 +101,11 @@
                     Wielokrotnego wyboru
                 </label>
 
-                <div id="div-variants" class="pure-group" style="display: none; clear: both">
-                    <input type="text" name="variants" class="pure-input-1" placeholder="Odpowiedź">
+                <div id="div-variants" style="display: none; clear: both">
                     <span class="tip">Wskazówka: po rozpoczęciu wpisywania pojawi się kolejne pole</span>
+                    <div class="pure-group">
+                        <input type="text" name="variants" class="pure-input-1" placeholder="Odpowiedź">
+                    </div>
                 </div>
             </fieldset>
 
@@ -131,14 +133,28 @@
                         Większość bezwzględna
                     </label>
                 </div>
-                <div>
+                <div class="pure-u-1">
                     <input id="check-additional-voters" name="additional_voters" type="checkbox">
                     <label for="check-additional-voters" class="pure-checkbox">
                         Dodatkowi głosujący
                     </label>
-                    <div id="div-extra-voters" class="pure-group" style="display: none; clear: both">
-                        <input type="text" name="additional_voters" class="pure-input-1" placeholder="Głosujący">
+                    <div id="div-extra-voters"  style="display: none; clear: both">
                         <span class="tip">Wskazówka: po rozpoczęciu wpisywania pojawi się kolejne pole</span>
+                        <div class="pure-u-1 extra-voter">
+                            <input type="text" name="additional_voters_title" class="pure-input-1-5" list="science-titles" placeholder="Tytuł">
+                            <datalist id="science-titles">
+                                <option>Prof. dr hab. inż.</option>
+                                <option>Prof. dr hab.</option>
+                                <option>Prof. nzw. dr hab. inż.</option>
+                                <option>Prof. nzw. dr hab.</option>
+                                <option>Dr hab. inż</option>
+                                <option>Dr hab.</option>
+                                <option>Dr inż.</option>
+                                <option>Dr</option>
+                            </datalist>
+                            <input type="text" name="additional_voters_name" class="pure-input-2-5" placeholder="Imię">
+                            <input type="text" name="additional_voters_surname" class="pure-input-2-5" placeholder="Nazwisko">
+                        </div>
                     </div>
                 </div>
             </fieldset>
@@ -194,18 +210,12 @@
         $('#popup-add-counter').removeClass('active');
     });
 
-    var div_variants = $('#div_variants-variants');
-    var div_voters = $('#div_variants-extra-voters');
+    var div_variants = $('#div-variants');
+    var div_variants_inputs = div_variants.children('div').last();
+    var div_voters = $('#div-extra-voters');
+    var div_voters_inputs = $('.extra-voter').first();
 
-    function addFormInput() {
-        $('<input type="text" name="variants" class="pure-input-1" placeholder="Odpowiedź">').appendTo(div_variants).one('input', addFormInput).on('focusout', function () {
-            if (this.val() == '') {
-                this.remove();
-            }
-        });
-    }
-
-    div_variants.children().last().one('input', addFormInput);
+    div_variants.children('.pure-group').children().last().one('input', addVariantInput);
 
     $('form input:radio[name=variants_type]').on('change', function () {
         if ($(this).val() == "2" && this.checked) {
@@ -215,21 +225,13 @@
         }
     });
 
-    $('#check-additional-voters').on('change', function () {
-        if (this.checked) {
-            div_voters.show();
-        } else {
-            div_voters.hide();
-        }
-    });
-
     $('#check-absolute-majority').on('change', function () {
         var checkbox = $('#check-quorum');
         if (this.checked) {
-            checkbox.prop('checked', true).prop('disabled', true);
+            checkbox.prop('checked', true);
         }
         else {
-            checkbox.prop('checked', false).prop('disabled', false);
+            checkbox.prop('checked', false);
         }
     });
 
@@ -237,6 +239,27 @@
         $.ajax({type:'delete', url:$(this).attr('data-url')});
         location.reload();
     });
+
+    $('#check-additional-voters').on('change', function () {
+        console.log("Votersi!");
+        if (this.checked) {
+            div_voters.show();
+        } else {
+            div_voters.hide();
+        }
+    });
+
+    div_voters_inputs.one('input', addVotersInputs);
+
+    function addVariantInput() {
+        $('<input type="text" name="variants" class="pure-input-1" placeholder="Odpowiedź">').appendTo(div_variants_inputs).one('input', addVariantInput);
+    }
+
+    function addVotersInputs() {
+        div_voters_inputs.clone().appendTo(div_voters).one('input', addVotersInputs).children().each(function () {
+            $(this).val('');
+        });
+    }
 </script>
 </body>
 </html>

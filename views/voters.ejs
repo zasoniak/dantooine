@@ -15,9 +15,8 @@
             <tr>
                 <th>#</th>
                 <th>Nazwisko</th>
-                <th>Tytuł naukowy</th>
+                <th>Tytuł</th>
                 <th>Instytut</th>
-                <th>Dziedzina</th>
                 <th></th>
             </tr>
             </thead>
@@ -28,7 +27,6 @@
                 <th data-name="<%=voters[i].name%>" data-surname="<%=voters[i].surname%>"><%= voters[i].surname + ', ' + voters[i].name %></th>
                 <td><%= voters[i].title %></td>
                 <td><%= voters[i].institute %></td>
-                <td><%= voters[i].specialty %></td>
                 <td class="cell-action">
                     <button type="button" class="pure-button button-yellow">Edytuj</button>
                     <button type="button" data-url="<%= "/voters/"+voters[i].id %>" data-method="delete" class="pure-button button-delete button-red">Usuń</button>
@@ -147,7 +145,7 @@
         </form>
     </section>
 </div>
-<script src="http://zeptojs.com/zepto.min.js"></script>
+<script src="lib/node_modules/jquery/dist/jquery.min.js"></script>
 <script>
     $('#button-add-member').on('click', function(e){
         $('#popup1').addClass('active');

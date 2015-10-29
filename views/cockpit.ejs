@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/stylesheets/pure-min.css">
+    <link rel="stylesheet" href="/stylesheets/mchtr-styler.css">
+</head>
+<body>
+<% include header.ejs %>
+<div class="cockpit">
+    <aside>
+        <h3>Lista obecności</h3>
+        <div class="pure-form">
+            <input id="voter-search" type="text" class="pure-input-1" placeholder="Szukaj..."/>
+        </div>
+        <ol id="presence-list">
+            <% for (var i = 0; i < voters.length; i++) { %>
+            <li>
+                <input id="checkbox-present-<%= voters[i].id %>" class="pure-checkbox big" type="checkbox" name="present" value="<%= voters[i].id %>" />
+                <label for="checkbox-present-<%= voters[i].id %>"><%= voters[i].surname + ", " + voters[i].name %></label>
+            </li>
+            <% } %>
+        </ol>
+    </aside>
+    <section>
+        <h3><%= title %></h3>
+    </section>
+    <section>
+        <h3>Głosowania</h3>
+        <ol class="voting-list">
+            <% for (var i=0; i<session.votings.length; i++) { %>
+            <li>
+                <p><%= session.votings[i].question %></p>
+                <ol>
+                    <% for (var j=0; j < session.votings[i].variants.length; j++) { %>
+                    <li><%= session.votings[i].variants[j].content %></li>
+                    <% } %>
+                </ol>
+            </li>
+            <% } %>
+        </ol>
+    </section>
+</div>
+<% include footer.ejs %>
+<script type="text/javascript" src="/lib/node_modules/jquery/dist/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        var search = $('#voter-search').first();
+        var list = $('#presence-list').first();
+
+        search.on('input', searchFor);
+
+        function searchFor() {
+            var inputString = search.val();
+            list.children().each(function () {
+                var name = $(this).find('label').first().html();
+                var result = name.toLowerCase().indexOf(inputString);
+                if (result != -1) {
+                    console.log(result);
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>

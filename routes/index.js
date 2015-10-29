@@ -47,6 +47,7 @@ module.exports = function(passport)
         Session.findById(id, function (err, session) {
             if (err) errorHandler(err);
             var variants = [];
+            var voters = [];
             for(var i=0; i<request.body.variants.length; i++)
             {
                 if (request.body.variants[i] != '') {
@@ -56,15 +57,26 @@ module.exports = function(passport)
                     };
                 }
             }
+            for(var j=0; j<request.body.additional_voters_title.length; j++)
+            {
+                if (request.body.additional_voters_title[i] != '') {
+                    voters[i]={
+                        title: request.body.additional_voters_title[i],
+                        name: request.body.additional_voters_name[i],
+                        surname: request.body.additional_voters_surname[i]
+                    };
+                }
+            }
             console.log(request.body);
             var voting = new Voting({
                 _session: session._id,
                 type: request.body.variants_type,
                 question: request.body.question,
-                variants: variants,
+                variants: (request.body.variants_type == 2) ? variants : [],
                 allowed_to_vote: request.body.allowed_to_vote,
+                extra_voters: (request.body.additional_voters === "on") ? voters : [],
                 quorum: (request.body.quorum === "on"),
-                absolute_majority: (request.body.absolute_majority === "on")
+                absolute_majority: (request.body.absolute === "on")
             });
             session.votings.push(voting);
             session.save(function (err) {
@@ -139,11 +151,31 @@ module.exports = function(passport)
             if(err) errorHandler(err);
             response.render('session',
                 {
-                    title: session.name,
+                    title: "Posiedzenie nr " + session.name,
                     session: session,
                     moment: moment,
                     message: request.flash('message')
                 });
+        });
+    });
+
+    /* GET session info */
+    router.get('/session/:id/cockpit', isLoggedIn, function (request, response, next) {
+        var Session = require('../dantooine_modules/database/database').Session;
+        var Voter = require('../dantooine_modules/database/database').Voter;
+        Session.findById(request.params.id).populate('votings').exec(function(err, session) {
+            if(err) errorHandler(err);
+            Voter.find().sort({ surname: 1, name: 1 }).exec(function (err, voters) {
+                if(err) errorHandler(err);
+                response.render('cockpit',
+                    {
+                        title: "Posiedzenie nr " + session.name,
+                        session: session,
+                        voters: voters,
+                        moment: moment,
+                        message: request.flash('message')
+                    });
+            });
         });
     });
 
