@@ -38,13 +38,24 @@ var votingSchema = new Schema({
     absolute_majority: Boolean
 });
 
+votingSchema.methods.setPresence = function(presenceSummary, callback)
+{
+    var self = this;
+    for (var it = 0; it <= self.allowed_to_vote; it++) {
+        self.presence_summary[it] = presenceSummary[it];
+    }
+    self.save(function (err) {
+        if(err) return callback(err);
+        return callback(null);
+    });
+};
 
-votingSchema.methods.checkQuorum = function (presenceSummary, callback) {
+
+votingSchema.methods.checkQuorum = function (callback) {
     var self = this;
     var presentVotersCount = 0;
     for (var it = 0; it <= self.allowed_to_vote; it++) {
-        self.presence_summary[it] = presenceSummary[it];
-        presentVotersCount += presenceSummary[it];
+        presentVotersCount += self.presence_summary[it];
     }
     for (var i = 0; i < self.extra_voters.length; i++) {
         if (self.extra_voters[i].present)

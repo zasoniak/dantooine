@@ -16,7 +16,6 @@ var Device = require("./models/device");
 var Session = require("./models/session");
 var User = require("./models/user");
 var Voting = require("./models/voting");
-var SessionSnapshot = require("./models/sessionSnapshot");
 
 /**
  * configuration of database connection
@@ -33,5 +32,4 @@ module.exports.Device = Device;
 module.exports.Session = Session;
 module.exports.User = User;
 module.exports.Voting = Voting;
-module.exports.SessionSnapshot = SessionSnapshot;
 module.exports.initialize = initialize;

@@ -4,7 +4,7 @@
  *     Facade for handling voting session
  *     Wraps up database models and manages bluetooth's part of voting session
  * @version 1.0
- * @author Mateusz Zasoñski
+ * @author Mateusz Zasoï¿½ski
  */
 
 /**
@@ -93,13 +93,10 @@ SessionFacade.prototype.startSession = function (callback) {
     var self = this;
     self.bluetoothController.startSession(self);
     self.session.state = STATES.STARTED;
-    SessionDataModel.findById(self.session.id).exec(function (err, sessionData) {
-        if (err) return callback(err);
-        sessionData.state = STATES.STARTED;
-        sessionData.save(function (err) {
-            if (err) return callback(err);
-            return callback(null);
-        });
+    self.session.save(function(err)
+    {
+        if(err) return callback(err);
+        return callback(null);
     });
 };
 
@@ -125,7 +122,11 @@ SessionFacade.prototype.setPresence = function (voterID, value, callback) {
         }
         self.session.save(function (err) {
             if (err) return callback(err);
-            self.checkQuorum(callback);
+            async.each(self.session.votings, function (voting, callback2) {
+                voting.setPresence(function (err) {
+                    if (err) return callback2(err);
+                });
+            }, callback);
         });
     });
 };
@@ -137,17 +138,15 @@ SessionFacade.prototype.setPresence = function (voterID, value, callback) {
  */
 SessionFacade.prototype.endSession = function (callback) {
     var self = this;
-    SessionDataModel.findById(self.session.id).exec(function (err, sessionData) {
-        if (err) return callback(err);
-        if (sessionData.state == STATES.STARTED) {
-            sessionData.state = STATES.FINISHED;
-            sessionData.save(function (err) {
-                if (err) return callback(err);
-                self.session.state = STATES.FINISHED;
-                self.bluetoothController.endSession(callback);
-            });
-        }
-    });
+    if(self.session.state== STATES.STARTED)
+    {
+        self.session.state=STATES.FINISHED;
+        self.session.save(function(err)
+        {
+           if(err) return callback(err);
+            self.bluetoothController.endSession(callback);
+        });
+    }
 };
 
 /**
@@ -156,17 +155,8 @@ SessionFacade.prototype.endSession = function (callback) {
  */
 SessionFacade.prototype.checkQuorum = function (callback) {
     var self = this;
-    var presenceSummary = [10];
-    for (var groupNo = 0; groupNo < 10; groupNo++) {
-        var counter = 0;
-        for (var it = 0; it < self.session.presence.length; it++) {
-            if (self.session.presence[it].group == groupNo)
-                counter++;
-        }
-        presenceSummary[groupNo] = counter;
-    }
     async.each(self.session.votings, function (voting, callback2) {
-        voting.checkQuorum(presenceSummary, function (err) {
+        voting.checkQuorum(function (err) {
             if (err) return callback2(err);
         });
     }, callback);

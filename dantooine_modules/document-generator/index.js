@@ -12,7 +12,7 @@ var pdfGenerator = require('wkhtmltopdf');
  * configuring pdfGenerator
  * @type {string}
  */
-//pdfGenerator.command = require("./config").systemPath;
+pdfGenerator.command = require("./config").systemPath;
 
 /**
  * templating engine import
