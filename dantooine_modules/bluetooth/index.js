@@ -2,12 +2,28 @@
  * Created by Mateusz on 17.09.2015.
  */
 
+var noble = require('noble');
 var Device = require('../database/database').Device;
 
 module.exports.initialize = function (callback) {
 
+var serviceUUID =
+{
+    DeviceStateService: "",
+    BatteryService: "",
+    AuthorizationService: "",
+    VotingService:""
 };
 
+var characteristicUUID =
+{
+    DevicePowerOnState:"",
+    BatteryLevel:"",
+    AuthorizationLevelCharacteristic:"",
+    SingleQuestionFlag:"",
+    VoteCharacteristic:"",
+    QuestionIsActiveCharacteristic:"",
+    AnswersPermittedNumberCharacteristic:""
 module.exports.findDevices = function (callback) {
 
 };
@@ -27,6 +43,7 @@ module.exports.wakeUpAndSetAuthorization = function (groupNo, callback) {
     });
 };
 
+var devices = [];
 module.exports.disconnectLastDevice = function (callback) {
     var self = this;
     var deviceToDisconnect = self.connectedDevices.pop();
@@ -53,6 +70,7 @@ module.exports.sleepDevices = function (callback) {
     });
 };
 
+module.exports.prepareVoting = function (votingID, callback) {
 
 module.exports.startVoting = function (groupNo, callback) {
     var self = this;
@@ -104,33 +122,20 @@ noble.on('stateChange', function (state) {
     }
 });
 
-var BluetoothHciSocket = require('bluetooth-hci-socket');
+noble.on('discover', function(peripheral) {
+    var remembered = !devices[peripheral.id];
+    if(remembered)
+        devices[peripheral.id]=peripheral;
+});
 
-var bluetoothHciSocket = new BluetoothHciSocket();
+module.exports.initialize = function (callback) {
+//skanuje i zapamietuje urzadzenia
+    if(noble.state=='poweredOn')
+        noble.startScanning([], true);
+};
 
-var STATUS_MAPPER = [
-    'success',
-    'unknown command',
-    'not connected',
-    'failed',
-    'connect failed',
-    'auth failed',
-    'not paired',
-    'no resources',
-    'timeout',
-    'already connected',
-    'busy',
-    'rejected',
-    'not supported',
-    'invalid params',
-    'disconnected',
-    'not powered',
-    'cancelled',
-    'invalid index',
-    'rfkilled',
-    'already paired',
-    'permission denied'
-];
+module.exports.updateDevices = function(callback)
+{
 
 var MGMT_INDEX_NONE = 0xFFFF;
 
