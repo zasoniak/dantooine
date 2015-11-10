@@ -2,40 +2,96 @@
  * Created by Mateusz on 17.09.2015.
  */
 
-
+var Device = require('../database/database').Device;
 
 module.exports.initialize = function (callback) {
 
 };
 
-/**
- *
- * @param groupsCount - JSON like { groupNumber: deviceCount, ... } with number of devices on every authorization level
- * @param callback  - callback function with format function(error, returnValue)
- */
-module.exports.setUpAuthorization = function (groupsCount, callback) {
+module.exports.findDevices = function (callback) {
 
 };
 
-module.exports.wakeUpDevices = function (callback) {
+module.exports.wakeUpAndSetAuthorization = function (groupNo, callback) {
+    var self = this;
+    Device.findOne({'peripheral.connected': false}).exec(function (device, err) {
+        if (err) return callback(err);
+        device.connect(function (err2) {
+            if (err2) return callback(err2);
+            device.setAuthorization(groupNo, function (err3) {
+                if (err3) return callback(err3);
+                self.connectedDevices.push(device);
+                return callback(null);
+            });
+        });
+    });
+};
 
+module.exports.disconnectLastDevice = function (callback) {
+    var self = this;
+    var deviceToDisconnect = self.connectedDevices.pop();
+    deviceToDisconnect.disconnect(callback);
+};
+
+module.exports.disconnectAllDevices = function (callback) {
+    var self = this;
+    async.each(self.connectedDevices, function (device, callback2) {
+        device.disconnect(callback2);
+    }, function (err) {
+        if (err) return callback(err);
+        return callback(null);
+    });
 };
 
 module.exports.sleepDevices = function (callback) {
+    var self = this;
+    async.each(self.connectedDevices, function (device, callback2) {
+        device.sleep(callback2);
+    }, function (err) {
+        if (err) return callback(err);
+        return callback(null);
+    });
+};
+
+
+module.exports.startVoting = function (groupNo, callback) {
+    var self = this;
+    async.each(self.connectedDevices, function (device, callback2) {
+        if (device.groupNo <= groupNo) {
+            device.startVoting(callback2);
+        }
+    }, function (err) {
+        if (err) return callback(err);
+        return callback(null);
+    });
+};
+
+module.exports.endVoting = function (callback) {
+    var self = this;
+    async.each(self.connectedDevices, function (device, callback2) {
+        device.endVoting(callback2);
+    }, function (err) {
+        if (err) return callback(err);
+        return callback(null);
+    });
+};
+
+module.exports.nextSubQuestion = function (callback) {
+    var self = this;
+    async.each(self.connectedDevices, function (device, callback2) {
+        if (device.isVotingActive == true) {
+            device.nextSubQuestion(callback2);
+        }
+    }, function (err) {
+        if (err) return callback(err);
+        return callback(null);
+    });
 
 };
 
-module.exports.prepareVoting = function (votingID, callback) {
-
-};
-
-module.exports.startVoting = function (votingID, callback) {
-
-};
-
-module.exports.endVoting = function (votingID, callback) {
-
-};
+//TODO:
+//on('read') -> odpowiedz na pytanie
+//notify -> stan baterii
 
 
 var noble = require('noble');
