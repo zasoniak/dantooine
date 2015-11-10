@@ -5,25 +5,26 @@
 var noble = require('noble');
 var Device = require('../database/database').Device;
 
-module.exports.initialize = function (callback) {
-
 var serviceUUID =
 {
     DeviceStateService: "",
     BatteryService: "",
     AuthorizationService: "",
-    VotingService:""
+    VotingService: ""
 };
 
 var characteristicUUID =
 {
-    DevicePowerOnState:"",
-    BatteryLevel:"",
-    AuthorizationLevelCharacteristic:"",
-    SingleQuestionFlag:"",
-    VoteCharacteristic:"",
-    QuestionIsActiveCharacteristic:"",
-    AnswersPermittedNumberCharacteristic:""
+    DevicePowerOnState: "",
+    BatteryLevel: "",
+    AuthorizationLevelCharacteristic: "",
+    SingleQuestionFlag: "",
+    VoteCharacteristic: "",
+    QuestionIsActiveCharacteristic: "",
+    AnswersPermittedNumberCharacteristic: ""
+};
+
+
 module.exports.findDevices = function (callback) {
 
 };
@@ -43,7 +44,7 @@ module.exports.wakeUpAndSetAuthorization = function (groupNo, callback) {
     });
 };
 
-var devices = [];
+
 module.exports.disconnectLastDevice = function (callback) {
     var self = this;
     var deviceToDisconnect = self.connectedDevices.pop();
@@ -71,6 +72,8 @@ module.exports.sleepDevices = function (callback) {
 };
 
 module.exports.prepareVoting = function (votingID, callback) {
+
+};
 
 module.exports.startVoting = function (groupNo, callback) {
     var self = this;
@@ -122,21 +125,20 @@ noble.on('stateChange', function (state) {
     }
 });
 
-noble.on('discover', function(peripheral) {
+noble.on('discover', function (peripheral) {
     var remembered = !devices[peripheral.id];
-    if(remembered)
-        devices[peripheral.id]=peripheral;
+    if (remembered)
+        devices[peripheral.id] = peripheral;
 });
 
 module.exports.initialize = function (callback) {
 //skanuje i zapamietuje urzadzenia
-    if(noble.state=='poweredOn')
+    if (noble.state == 'poweredOn')
         noble.startScanning([], true);
 };
 
-module.exports.updateDevices = function(callback)
-{
-
+module.exports.updateDevices = function (callback) {
+};
 var MGMT_INDEX_NONE = 0xFFFF;
 
 var MGMT_OP_READ_VERSION = 0x0001;
@@ -203,5 +205,3 @@ function readVersion() {
 
 bluetoothHciSocket.start();
 bluetoothHciSocket.bindControl();
-
-readVersion();
