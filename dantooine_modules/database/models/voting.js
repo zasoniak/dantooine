@@ -26,6 +26,7 @@ var votingSchema = new Schema({
         timestamp: {type: Date, default: Date.now}
     }],
     extra_voters: [{
+        id: Number,
         role: String,
         name: String,
         surname: String,

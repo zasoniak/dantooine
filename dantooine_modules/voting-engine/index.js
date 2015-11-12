@@ -93,9 +93,8 @@ SessionFacade.prototype.startSession = function (callback) {
     var self = this;
     self.bluetoothController.startSession(self);
     self.session.state = STATES.STARTED;
-    self.session.save(function(err)
-    {
-        if(err) return callback(err);
+    self.session.save(function (err) {
+        if (err) return callback(err);
         return callback(null);
     });
 };
@@ -132,18 +131,38 @@ SessionFacade.prototype.setPresence = function (voterID, value, callback) {
 };
 
 
+SessionFacade.prototype.setPresenceForExtraVoter(votingID, extraVoterID, value, callback)
+{
+    if (value) {
+        var self = this;
+        VotingDataModel.findById(votingID).exec(function (err, voting) {
+            if (err) return callback(err);
+            for (var i = 0; i < voting.extra_voters.length; i++) {
+                if (voting.extra_voters[i].id == extraVoterID) {
+                    sefl.bluetoothController.turnOnDeviceForExtraVoter(function (err, device) {
+                        if (err) return callback(err);
+                        voting.extra_voters[i].present = true;
+                        voting.extra_voters[i].device = device.id;
+                        voting.save(callback);
+                    })
+                }
+            }
+        });
+    }
+}
+;
+
+
 /**
  * End current session
  * @param callback - error handler like function(err)
  */
 SessionFacade.prototype.endSession = function (callback) {
     var self = this;
-    if(self.session.state== STATES.STARTED)
-    {
-        self.session.state=STATES.FINISHED;
-        self.session.save(function(err)
-        {
-           if(err) return callback(err);
+    if (self.session.state == STATES.STARTED) {
+        self.session.state = STATES.FINISHED;
+        self.session.save(function (err) {
+            if (err) return callback(err);
             self.bluetoothController.endSession(callback);
         });
     }
@@ -280,7 +299,10 @@ SessionFacade.prototype.endVoting = function (callback) {
             self.currentQuestion.id = null;
             self.currentQuestion.subquestionNo = 0;
             self.currentQuestion.summary = voting;
-            self.updateSession(callback);
+            self.updateSession(function (err) {
+                if (err) return callback(err);
+                self.bluetoothController.stopVoting(callback);
+            });
         });
     });
 };
