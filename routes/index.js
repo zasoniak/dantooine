@@ -143,6 +143,19 @@ module.exports = function(passport)
         //response.download('/doctest/'+id, 'report.pdf');
     });
 
+    router.get('/session/:id/screencast', function (request, response) {
+        var id = request.params.id;
+        var Session = require('../dantooine_modules/database/database').Session;
+        Session.findById(id).populate('votings').exec(function(err, session) {
+            if(err) errorHandler(err);
+            response.render('screencast',
+                {
+                    session: session,
+                    message: request.flash('message')
+                });
+        });
+    });
+
     /* GET session info */
     router.get('/session/:id', isLoggedIn, function (request, response, next) {
         var id = request.params.id;

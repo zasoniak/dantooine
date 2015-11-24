@@ -23,22 +23,39 @@
         </ol>
     </aside>
     <section>
-        <h3><%= title %></h3>
-    </section>
-    <section>
-        <h3>Głosowania</h3>
-        <ol class="voting-list">
-            <% for (var i=0; i<session.votings.length; i++) { %>
-            <li>
-                <p><%= session.votings[i].question %></p>
-                <ol>
-                    <% for (var j=0; j < session.votings[i].variants.length; j++) { %>
-                    <li><%= session.votings[i].variants[j].content %></li>
-                    <% } %>
-                </ol>
-            </li>
+        <h3>Głosowania nierozpoczęte</h3>
+        <% for (var i=0; i<session.votings.length; i++) { %>
+        <article class="voting">
+            <h4><%= session.votings[i].question %></h4>
+            <% if (session.votings[i].type == 2) { %>
+            <ol class="left">
+                <% for (var j=0; j < session.votings[i].variants.length; j++) { %>
+                <li><%= session.votings[i].variants[j].content %></li>
+                <% } %>
+            </ol>
+            <% } else { %>
+            <span class="tip">Pytanie tak/nie</span>
             <% } %>
-        </ol>
+            <div class="right">
+                <button type="button" class="pure-button button-primary">Rozpocznij głosowanie</button>
+            </div>
+        </article>
+        <% } %>
+        <h3>Głosowania zakończone</h3>
+        <% for (var i=0; i<session.votings.length; i++) { %>
+        <article class="voting">
+            <h4><%= session.votings[i].question %></h4>
+            <% if (session.votings[i].type == 2) { %>
+            <ol>
+                <% for (var j=0; j < session.votings[i].variants.length; j++) { %>
+                <li><%= session.votings[i].variants[j].content %></li>
+                <% } %>
+            </ol>
+            <% } else { %>
+            <span class="tip">Pytanie tak/nie</span>
+            <% } %>
+        </article>
+        <% } %>
     </section>
 </div>
 <% include footer.ejs %>
