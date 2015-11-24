@@ -10,7 +10,9 @@ var bodyParser = require('body-parser');
 var passport = require('./config/passport');
 
 
-var database = require("./dantooine_modules/database/database");
+var bluetooth = require("./dantooine_modules/bluetooth");
+
+var database = require("./dantooine_modules/database");
 database.initialize();
 var app = express();
 
@@ -20,7 +22,7 @@ app.set('view engine', 'ejs');
 helpers(app);
 
 // uncomment after placing your favicon in /public
-app.use(favicon(path.join(__dirname, 'public', 'favicon', 'favicon.ico')));
+app.use(favicon(path.join(__dirname, 'public/favicon', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
