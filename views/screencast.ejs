@@ -8,16 +8,43 @@
 </head>
 <body class="screencast">
 <header class="content">
-    <p class="left">Posiedzenie Rady Wydziału nr 756</p>
-    <p id="timer" class="right">00:35</p>
+    <p id="title" class="left">Posiedzenie Rady Wydziału nr 756</p>
+    <div class="right">
+        Głosowanie <span id="session-increment">1</span> z <%= session.votings.length %>
+        <p id="timer">00:35</p>
+    </div>
 </header>
 <div class="content">
     <h1 id="question">Tu będzie bardzo trudne pytanie zakończone znakiem zapytania?</h1>
 </div>
-<div class="content">
-    <h2>Jedna odpowiedź</h2>
-    <h2>Druga odpowiedź</h2>
+<div class="content" id="variants">
+    <article>
+        <div>Aktualnie głosujemy</div>
+        <h2>Pierwsza odpowiedź</h2>
+        <div>Zebrano <span id="votes-counter">30</span> spośród 52 głosów</div>
+    </article>
+    <article>
+        <div>Aktualnie głosujemy</div>
+        <h2>Druga odpowiedź</h2>
+        <div>Zebrano <span id="votes-counter">30</span> spośród 52 głosów</div>
+    </article>
+    <article>
+        <div>Aktualnie głosujemy</div>
+        <h2>Trzecia odpowiedź</h2>
+        <div>Zebrano <span id="votes-counter">30</span> spośród 52 głosów</div>
+    </article>
 </div>
 <% include footer.ejs %>
+<script type="text/javascript" src="/lib/node_modules/jquery/dist/jquery.js"></script>
+<script type="text/javascript">
+    $('article').on({
+        mouseenter: function () {
+            $(this).addClass('current-variant');
+        },
+        mouseleave: function () {
+            $(this).removeClass('current-variant');
+        }
+    });
+</script>
 </body>
 </html>

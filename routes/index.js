@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var pdf = require('../dantooine_modules/document-generator/documentGenerator');
+var pdf = require('../dantooine_modules/document-generator');
 var moment = require('moment');
 moment.locale('pl');
 
@@ -15,7 +15,7 @@ module.exports = function(passport)
 
     /* GET sessions screen */
     router.get('/sessions', isLoggedIn, function (request, response, next) {
-        var Session = require('../dantooine_modules/database/database').Session;
+        var Session = require('../dantooine_modules/database').Session;
         Session.find({}, function (err, sessions) {
             if (err) errorHandler(err);
             response.render('sessions', { title: 'Rada Wydziału', sessions: sessions, moment: moment });
@@ -23,7 +23,7 @@ module.exports = function(passport)
     });
 
     router.post('/sessions', isLoggedIn, function (request, response, next) {
-        var Session = require('../dantooine_modules/database/database').Session;
+        var Session = require('../dantooine_modules/database').Session;
         var date = moment(request.body.date, "DD.MM.YYYY");
         var session = new Session(
             {
@@ -42,8 +42,8 @@ module.exports = function(passport)
     /* POST new session voting*/
     router.post('/voting', function (request, response, next) {
         var id = request.body.session_id;
-        var Voting = require('../dantooine_modules/database/database').Voting;
-        var Session = require('../dantooine_modules/database/database').Session;
+        var Voting = require('../dantooine_modules/database').Voting;
+        var Session = require('../dantooine_modules/database').Session;
         Session.findById(id, function (err, session) {
             if (err) errorHandler(err);
             var variants = [];
@@ -101,7 +101,7 @@ module.exports = function(passport)
     /* DELETE supervisor */
     router.delete('/session/:id/supervisor/:supervisor', isAjax, function (request, response, next) {
         var id = request.params.id;
-        var Session = require('../dantooine_modules/database/database').Session;
+        var Session = require('../dantooine_modules/database').Session;
         Session.findById(id, function (err, session) {
             if (err) errorHandler(err);
             session.supervisors.pull(request.params.supervisor);
@@ -116,7 +116,7 @@ module.exports = function(passport)
     /* POST new counter */
     router.post('/session/:id/counter', function (request, response, next) {
         var id = request.params.id;
-        var Session = require('../dantooine_modules/database/database').Session;
+        var Session = require('../dantooine_modules/database').Session;
         Session.findById(id, function (err, session) {
             if (err) errorHandler(err);
             var supervisor = {
@@ -145,7 +145,7 @@ module.exports = function(passport)
 
     router.get('/session/:id/screencast', function (request, response) {
         var id = request.params.id;
-        var Session = require('../dantooine_modules/database/database').Session;
+        var Session = require('../dantooine_modules/database').Session;
         Session.findById(id).populate('votings').exec(function(err, session) {
             if(err) errorHandler(err);
             response.render('screencast',
@@ -159,7 +159,7 @@ module.exports = function(passport)
     /* GET session info */
     router.get('/session/:id', isLoggedIn, function (request, response, next) {
         var id = request.params.id;
-        var Session = require('../dantooine_modules/database/database').Session;
+        var Session = require('../dantooine_modules/database').Session;
         Session.findById(id).populate('votings').exec(function(err, session) {
             if(err) errorHandler(err);
             response.render('session',
@@ -174,8 +174,8 @@ module.exports = function(passport)
 
     /* GET session info */
     router.get('/session/:id/cockpit', isLoggedIn, function (request, response, next) {
-        var Session = require('../dantooine_modules/database/database').Session;
-        var Voter = require('../dantooine_modules/database/database').Voter;
+        var Session = require('../dantooine_modules/database').Session;
+        var Voter = require('../dantooine_modules/database').Voter;
         Session.findById(request.params.id).populate('votings').exec(function(err, session) {
             if(err) errorHandler(err);
             Voter.find().sort({ surname: 1, name: 1 }).exec(function (err, voters) {
@@ -194,7 +194,7 @@ module.exports = function(passport)
 
     /* GET voters overview */
     router.get('/voters', isLoggedIn, function (request, response, next) {
-        var Voter = require('../dantooine_modules/database/database').Voter;
+        var Voter = require('../dantooine_modules/database').Voter;
         Voter.find().sort({ surname: 1, name: 1 }).exec(
             function (err, voters) {
                 if (err) errorHandler(err);
@@ -209,14 +209,14 @@ module.exports = function(passport)
 
     /* DELETE voter ajax request */
     router.delete('/voters/:id', isAjax, function (request, response, next) {
-        var Voter = require('../dantooine_modules/database/database').Voter;
+        var Voter = require('../dantooine_modules/database').Voter;
         Voter.findByIdAndRemove(request.params.id).exec();
         response.sendStatus(204);
     });
 
     /* EDIT voter ajax request */
     router.put('/voters/:id', isAjax, function (request, response, next) {
-        var Voter = require('../dantooine_modules/database/database').Voter;
+        var Voter = require('../dantooine_modules/database').Voter;
         Voter.findByIdAndUpdate(request.params.id,
             {
                 name: request.body.name,
@@ -232,7 +232,7 @@ module.exports = function(passport)
 
     /* POST new voter */
     router.post('/voters', function (request, response, next) {
-        var Voter = require('../dantooine_modules/database/database').Voter;
+        var Voter = require('../dantooine_modules/database').Voter;
         var voter = new Voter(
             {
                 name: request.body.name,

@@ -432,19 +432,69 @@ input[type=checkbox].big + label:before {
     width: 92%;
 }
 
+.screencast span {
+    margin: 0;
+}
+
+.screencast #title {
+    width: 82pt;
+}
+
+.screencast header .right {
+    text-align: right;
+}
+
 .screencast footer {
     position: absolute;
     bottom: 0;
 }
 
 .screencast #question {
-    font-size: 30pt;
+    font-size: 36pt;
     line-height: 1.2em;
     text-wrap: normal;
 }
 
+.screencast #variants {
+    text-align: center;
+}
+
 .screencast #timer {
     color: forestgreen;
-    font-size: 36pt;
+    font-size: 40pt;
     line-height: 1em;
+    margin: 0;
+}
+
+.screencast #votes-counter {
+    font-weight: bold;
+}
+
+.screencast #variants h2 {
+    font-size: 26pt;
+    font-weight: normal;
+}
+
+.screencast #variants .current-variant h2 {
+    font-weight: bold;
+    margin: 16pt;
+}
+
+.screencast #variants article div {
+    display: none;
+    font-size: 16pt;
+    color: forestgreen;
+}
+
+.screencast #variants article {
+    padding: 4pt;
+}
+
+.screencast #variants article.current-variant {
+    border: 1px solid gray;
+    border-radius: 8pt;
+}
+
+.screencast #variants .current-variant div {
+    display: block;
 }
