@@ -1,8 +1,12 @@
 var express = require('express');
 var router = express.Router();
 var pdf = require('../dantooine_modules/document-generator');
+var SessionFacade = require('../dantooine_modules/voting-engine');
+dantooine = new SessionFacade(null);
 var moment = require('moment');
 moment.locale('pl');
+
+
 
 /* PRIVATE ZONE */
 module.exports = function(passport)
@@ -140,6 +144,7 @@ module.exports = function(passport)
            if(err) errorHandler(err);
             votingProtocol.pipe(response);
         });
+
         //response.download('/doctest/'+id, 'report.pdf');
     });
 
@@ -157,6 +162,32 @@ module.exports = function(passport)
     });
 
     /* GET session info */
+    router.get('/session/:id/cockpit', isLoggedIn, function (request, response, next) {
+        var Session = require('../dantooine_modules/database').Session;
+        var Voter = require('../dantooine_modules/database').Voter;
+        Session.findById(request.params.id).populate('votings').exec(function(err, session) {
+            if(err) errorHandler(err);
+            Voter.find().sort({ surname: 1, name: 1 }).exec(function (err, voters) {
+                if(err) errorHandler(err);
+                dantooine.loadSession(session.id, function (err) {
+                    if(err) errorHandler(err);
+                    dantooine.startSession(function (err) {
+                        if(err) errorHandler(err);
+                    });
+                });
+                response.render('cockpit',
+                    {
+                        title: "Posiedzenie nr " + session.name,
+                        session: session,
+                        voters: voters,
+                        moment: moment,
+                        message: request.flash('message')
+                    });
+            });
+        });
+    });
+
+    /* GET session info */
     router.get('/session/:id', isLoggedIn, function (request, response, next) {
         var id = request.params.id;
         var Session = require('../dantooine_modules/database').Session;
@@ -169,26 +200,6 @@ module.exports = function(passport)
                     moment: moment,
                     message: request.flash('message')
                 });
-        });
-    });
-
-    /* GET session info */
-    router.get('/session/:id/cockpit', isLoggedIn, function (request, response, next) {
-        var Session = require('../dantooine_modules/database').Session;
-        var Voter = require('../dantooine_modules/database').Voter;
-        Session.findById(request.params.id).populate('votings').exec(function(err, session) {
-            if(err) errorHandler(err);
-            Voter.find().sort({ surname: 1, name: 1 }).exec(function (err, voters) {
-                if(err) errorHandler(err);
-                response.render('cockpit',
-                    {
-                        title: "Posiedzenie nr " + session.name,
-                        session: session,
-                        voters: voters,
-                        moment: moment,
-                        message: request.flash('message')
-                    });
-            });
         });
     });
 

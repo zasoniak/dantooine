@@ -7,8 +7,9 @@
  * @author Mateusz Zasonski
  */
 
-
+var Bluetooth = require('../bluetooth');
 var WebSocket = require('./websocket');
+
 /**
  * Required import for database usage
  * @type {*|Session}
@@ -41,6 +42,7 @@ var STATES = {
     FINISHED: 2
 };
 
+
 /**
  * SessionFacade constructor
  * <p>
@@ -49,13 +51,32 @@ var STATES = {
  * @constructor
  */
 function SessionFacade(bluetoothController) {
-    this.bluetoothController = bluetoothController;
+    var self = this;
+    this.bluetoothController = new Bluetooth();
     this.session = null;
     this.currentQuestion = {};
     this.currentQuestion.id = null;
     this.currentQuestion.subquestionNo = null;
     this.currentQuestion.summary = null;
-    this.webSocket = WebSocket();
+    this.webSocket = new WebSocket();
+    this.cockpitSocket = require('socket.io')(8081);
+    this.cockpitSocket.on('connect', function (socket) {
+        socket.on('set presence', function (data) {
+            console.warn('Implement!');
+        });
+        socket.on('prepare voting', function (data) {
+            console.log('Prepare voting event received.');
+            self.nextVoting(data.votingID, function (error) {
+                if (error) socket.emit('error', {message: error});
+            });
+        });
+        socket.on('start voting', function () {
+            console.log('Start voting event received.');
+            self.startVoting(function (error) {
+                if (error) socket.emit('error', {message: error});
+            });
+        });
+    })
 }
 
 /**
@@ -134,7 +155,7 @@ SessionFacade.prototype.setPresence = function (voterID, value, callback) {
 };
 
 
-SessionFacade.prototype.setPresenceForExtraVoter(votingID, extraVoterID, value, callback)
+SessionFacade.prototype.setPresenceForExtraVoter = function (votingID, extraVoterID, value, callback)
 {
     if (value) {
         var self = this;
@@ -152,8 +173,7 @@ SessionFacade.prototype.setPresenceForExtraVoter(votingID, extraVoterID, value, 
             }
         });
     }
-}
-;
+};
 
 
 /**
@@ -213,6 +233,7 @@ SessionFacade.prototype.startVoting = function (callback) {
     var self = this;
     VotingDataModel.findById(self.currentQuestion.id).exec(function (err, voting) {
         if (err) return callback(err);
+        console.warn(voting);
         if (voting.state == STATES.CREATED) {
             voting.state = STATES.STARTED;
             voting.save(function (err) {

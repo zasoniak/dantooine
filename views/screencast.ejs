@@ -10,41 +10,115 @@
 <header class="content">
     <p id="title" class="left">Posiedzenie Rady Wydziału nr 756</p>
     <div class="right">
-        Głosowanie <span id="session-increment">1</span> z <%= session.votings.length %>
-        <p id="timer">00:35</p>
+        Głosowanie <span id="voting-increment">0</span> z <%= session.votings.length %>
+        <p id="timer" class="green"></p>
     </div>
 </header>
 <div class="content">
-    <h1 id="question">Tu będzie bardzo trudne pytanie zakończone znakiem zapytania?</h1>
+    <h1 id="question">Witamy na posiedzeniu rady wydziału</h1>
 </div>
 <div class="content" id="variants">
     <article>
-        <div>Aktualnie głosujemy</div>
-        <h2>Pierwsza odpowiedź</h2>
-        <div>Zebrano <span id="votes-counter">30</span> spośród 52 głosów</div>
-    </article>
-    <article>
-        <div>Aktualnie głosujemy</div>
-        <h2>Druga odpowiedź</h2>
-        <div>Zebrano <span id="votes-counter">30</span> spośród 52 głosów</div>
-    </article>
-    <article>
-        <div>Aktualnie głosujemy</div>
-        <h2>Trzecia odpowiedź</h2>
-        <div>Zebrano <span id="votes-counter">30</span> spośród 52 głosów</div>
+        <div class="green">Aktualnie głosujemy</div>
+        <h2 class="answer">Dzień dobry!</h2>
+        <div class="green">Zebrano <span data-id="votes-counter">30</span> spośród 52 głosów</div>
     </article>
 </div>
 <% include footer.ejs %>
 <script type="text/javascript" src="/lib/node_modules/jquery/dist/jquery.js"></script>
+<script type="text/javascript" src="/lib/node_modules/socket.io-client/socket.io.js"></script>
 <script type="text/javascript">
-    $('article').on({
-        mouseenter: function () {
-            $(this).addClass('current-variant');
-        },
-        mouseleave: function () {
-            $(this).removeClass('current-variant');
-        }
+
+    var socket = io.connect('http://localhost:8080');
+    socket.on('connect', function () {
+        console.log('Połączono rzutnik z serwerem :D');
     });
+    socket.on('voting prepared', function (data) {
+        console.log('Received voting prepared event.');
+        newQuestion(data.voting);
+    });
+    socket.on('voting started', function () {
+        console.log('Received voting started event. Starting countdown...');
+        startCountdown();
+    });
+
+    var article = $('article').first();
+
+    var countdown = 60;
+    var votingCounter = 0;
+    var votesCounter = 0;
+    var result = false;
+
+    $('#title').on('click', function () {
+        nextSubvariant();
+        incrementVotingCounter();
+        incrementVotesCounter();
+        if (!result){
+            changeTimeIndicatorToResult();
+        }
+        else {
+            setTimer(30);
+        }
+        result = !result;
+
+    });
+
+    function changeTimeIndicatorToResult() {
+        $('#timer').removeClass('green').html('Wyniki');
+    }
+
+    function setTimer(sec) {
+        $('#timer').addClass('green').html(sec+"s");
+    }
+
+    function incrementVotingCounter() {
+        $('#voting-increment').html(++votingCounter);
+    }
+
+    function incrementVotesCounter() {
+        $('.current-variant').find('[data-id="votes-counter"]').first().html(++votesCounter);
+    }
+
+    function newQuestion(voting) {
+
+        $('#question').html(voting.question);
+        if (voting.type == 1) {
+            article.find('.answer').first().html("TAK / NIE");
+        } else if (voting.type == 2) {
+            for (var i=0; i<voting.variants.length; i++) {
+                article.clone().appendTo('#variants').find('.answer').first().html(voting.variants[i].content);
+            }
+        }
+        incrementVotingCounter();
+        countdown = 60;
+        setTimer(60);
+    }
+
+    function startCountdown() {
+        var interval = setInterval(function() {
+            setTimer(--countdown)
+
+            if (countdown <= 0)
+            {
+                clearInterval(interval);
+            }
+        }, 1000);
+    }
+
+    //TODO: Dorobić zmianę tekstu wokół aktualnie głosowanej odpowiedzi
+
+    function nextSubvariant() {
+        var current = $('article.current-variant').first();
+        if (current.length == 0) {
+            current = $('article').first();
+            current.addClass('current-variant');
+        }
+        else {
+            current.removeClass('current-variant').next().addClass('current-variant');
+        }
+    }
+
+
 </script>
 </body>
 </html>

@@ -26,6 +26,9 @@
         <h3>Głosowania nierozpoczęte</h3>
         <% for (var i=0; i<session.votings.length; i++) { %>
         <article class="voting">
+            <div class="right">
+                <button type="button" class="pure-button">Edytuj</button>
+            </div>
             <h4><%= session.votings[i].question %></h4>
             <% if (session.votings[i].type == 2) { %>
             <ol class="left">
@@ -34,34 +37,48 @@
                 <% } %>
             </ol>
             <% } else { %>
-            <span class="tip">Pytanie tak/nie</span>
+            <div class="tip">Głosowanie tak/nie</div>
             <% } %>
-            <div class="right">
-                <button type="button" class="pure-button button-primary">Rozpocznij głosowanie</button>
+            <div>
+                <span class="green">Aktualne głosowanie.</span>
+                Zebrano 5 z 51 głosów.
+            </div>
+            <div class="right" style="display: none">
+                <button data-voting="<%= session.votings[i]._id %>" data-action="revert-voting" type="button" class="pure-button">Anuluj głosowanie</button>
+                <button data-voting="<%= session.votings[i]._id %>" data-action="start-voting" type="button" class="pure-button button-primary">Rozpocznij głosowanie</button>
+            </div>
+            <div class="right" style="display: block">
+                <button data-voting="<%= session.votings[i]._id %>" data-action="prepare-voting" type="button" class="pure-button button-primary">Przygotuj głosowanie</button>
             </div>
         </article>
         <% } %>
         <h3>Głosowania zakończone</h3>
-        <% for (var i=0; i<session.votings.length; i++) { %>
-        <article class="voting">
-            <h4><%= session.votings[i].question %></h4>
-            <% if (session.votings[i].type == 2) { %>
-            <ol>
-                <% for (var j=0; j < session.votings[i].variants.length; j++) { %>
-                <li><%= session.votings[i].variants[j].content %></li>
-                <% } %>
-            </ol>
-            <% } else { %>
-            <span class="tip">Pytanie tak/nie</span>
-            <% } %>
-        </article>
-        <% } %>
+        <div class="placeholder">Nic jeszcze tu nie ma</div>
+    </section>
+</div>
+<div id="popup-manage-voting" class="overlay">
+    <section class="popup">
+        <h3>Głosowanie</h3>
+        <p>Oddano miliordy głosów</p>
+        <div class="pure-form">
+            <button data-action="unlock-remotes" type="button" class="pure-button button-primary">Odblokuj piloty</button>
+            <button data-action="next-subvariant" type="button" class="pure-button button-primary">Następne pytanie</button>
+            <button data-action="close-manage-voting" type="button" class="pure-button button-primary">Zakończ głosowanie</button>
+        </div>
     </section>
 </div>
 <% include footer.ejs %>
 <script type="text/javascript" src="/lib/node_modules/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" src="/lib/node_modules/socket.io-client/socket.io.js"></script>
 <script>
     $(document).ready(function () {
+
+        var socket = io.connect('http://localhost:8081');
+        socket.on('connect', function () {
+            console.log('Połączono kokpit z serwerem :D');
+        });
+
+        /* SEARCH ENGINE */
         var search = $('#voter-search').first();
         var list = $('#presence-list').first();
 
@@ -80,6 +97,24 @@
                 }
             });
         }
+
+        /* VOTING COCKPIT */
+        var popup = $('#popup-manage-voting');
+
+        $('[data-action="prepare-voting"]').on('click', function () {
+            popup.addClass('active');
+            console.log("Emitting prepare voting event...");
+            socket.emit('prepare voting', {votingID: $(this).attr('data-voting')});
+        });
+
+        $('[data-action="close-manage-voting"]').on('click', function () {
+            popup.removeClass('active');
+        });
+
+        $('[data-action="unlock-remotes"]').on('click', function () {
+            console.log("Emitting start voting event...");
+            socket.emit('start voting');
+        })
     });
 </script>
 </body>

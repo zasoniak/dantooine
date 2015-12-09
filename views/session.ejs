@@ -33,7 +33,7 @@
         <button type="button" class="pure-button">Generuj raport<img src="/images/icon_pdf.gif" class="filetype"/></button>
         <button type="button" id="button-add-counter" class="pure-button">Dodaj skrutatora</button>
         <button type="button" id="button-add-question" class="pure-button">Dodaj głosowanie</button>
-        <a href="<%= '/session/'+session.id+'/cockpit' %>" class="pure-button button-primary">Rozpocznij sesję</a>
+        <button type="button" id="button-start-session" class="pure-button button-primary">Rozpocznij sesję</button>
     </div>
 </section>
 <section>
@@ -211,6 +211,8 @@
         $('#popup-add-counter').removeClass('active');
     });
 
+    $('#button-start-session').on('click', startSession);
+
     var div_variants = $('#div-variants');
     var div_variants_inputs = div_variants.children('div').last();
     var div_voters = $('#div-extra-voters');
@@ -251,6 +253,12 @@
     });
 
     div_voters_inputs.one('input', addVotersInputs);
+
+    function startSession() {
+        var href = window.location.href+'/';
+        window.open(href+'screencast');
+        window.location.assign(href+'cockpit');
+    }
 
     function addVariantInput() {
         $('<input type="text" name="variants" class="pure-input-1" placeholder="Odpowiedź">').appendTo(div_variants_inputs).one('input', addVariantInput);

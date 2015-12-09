@@ -9,7 +9,6 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var passport = require('./config/passport');
 
-
 var bluetooth = require("./dantooine_modules/bluetooth");
 
 var database = require("./dantooine_modules/database");
@@ -44,6 +43,7 @@ app.locals.site = {
     title: 'System elektronicznego głosowania Rady Wydziału',
     author: 'Spectrum Labs'
 };
+
 
 var routes = require('./routes/index')(passport);
 

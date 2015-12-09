@@ -9,12 +9,12 @@ var Schema = mongoose.Schema;
 
 var votingSchema = new Schema({
     _session: {type: Schema.Types.ObjectId, ref: 'Session'},
-    type: Number,
+    type: Number, // 1 - yes/no, 2 - multiple
     allowed_to_vote: Number,    // highest group number
     allowed_to_vote_summary: [Number],   // how many voters there are in every group
     presence_summary: [Number],  // how many voters of each group are present
     question: String,
-    state: Number,
+    state: {type: Number, default: 0},
     variants: [{
         id: Number,
         content: String

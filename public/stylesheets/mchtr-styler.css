@@ -98,30 +98,6 @@ section, aside {
     border-radius: 0.5em;
 }
 
-.cockpit section {
-    margin: 2em 2%;
-    float: right;
-    width: 62%;
-}
-
-.cockpit aside {
-    margin: 2em 2%;
-    float: left;
-    width: 30%;
-}
-
-article.voting {
-    padding: 1em;
-    border: 1px solid gainsboro;
-    border-radius: 0.5em;
-    overflow: auto;
-}
-
-article.voting > *:not(ol) {
-    margin: 0.5em;
-    padding: 0;
-}
-
 section > *:first-child, aside > *:first-child {
     margin: 2em 2em 1em;
 }
@@ -149,7 +125,7 @@ section > *:last-child, aside > *:last-child {
     box-shadow: 0 0 6px rgba(0,0,0,0.4);
 
     animation-name: pop;
-    animation-duration: 4s;
+    animation-duration: 3s;
     animation-iteration-count: 1;
     animation-fill-mode: forwards;
 }
@@ -421,7 +397,37 @@ input[type=checkbox].big + label:before {
     100% { opacity: 0; display: none; }
 }
 
+/* COCKPIT PART */
+
+.cockpit section {
+    margin: 2em 2%;
+    float: right;
+    width: 62%;
+}
+
+.cockpit aside {
+    margin: 2em 2%;
+    float: left;
+    width: 30%;
+}
+
+article.voting {
+    padding: 1em;
+    border: 1px solid gainsboro;
+    border-radius: 0.5em;
+    overflow: auto;
+}
+
+article.voting > *:not(ol) {
+    margin: 0.5em;
+    padding: 0;
+}
+
 /* SCREENCAST PART */
+
+.green {
+    color: forestgreen;
+}
 
 .screencast * {
     margin: 4pt;
@@ -460,7 +466,6 @@ input[type=checkbox].big + label:before {
 }
 
 .screencast #timer {
-    color: forestgreen;
     font-size: 40pt;
     line-height: 1em;
     margin: 0;
@@ -480,21 +485,24 @@ input[type=checkbox].big + label:before {
     margin: 16pt;
 }
 
-.screencast #variants article div {
-    display: none;
-    font-size: 16pt;
-    color: forestgreen;
-}
-
 .screencast #variants article {
     padding: 4pt;
+    border-color: transparent;
+}
+
+.screencast #variants article div {
+    font-size: 16pt;
+    overflow: hidden;
+    max-height: 0;
 }
 
 .screencast #variants article.current-variant {
     border: 1px solid gray;
     border-radius: 8pt;
+    transition: border-color 1s;
 }
 
-.screencast #variants .current-variant div {
-    display: block;
+.screencast #variants article.current-variant div {
+    max-height: 1000px;
+    transition: max-height 2s;
 }
