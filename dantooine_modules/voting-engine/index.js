@@ -43,6 +43,12 @@ var STATES = {
 };
 
 
+var VOTER_GROUPS = {
+    FULL: 0,
+    LIMITED: 1,
+    EXTRA: 2
+};
+
 /**
  * SessionFacade constructor
  * <p>
@@ -63,10 +69,22 @@ function SessionFacade(bluetoothController) {
     this.cockpitSocket.on('connect', function (socket) {
         socket.on('set presence', function (data) {
             console.warn('Implement!');
+            self.setPresence(data.voterID, data.isPresent, function (error) {
+                if (error) socket.emit('error', {message: error});
+            })
         });
+        //TODO: set presence for extra voters
         socket.on('prepare voting', function (data) {
             console.log('Prepare voting event received.');
-            self.nextVoting(data.votingID, function (error) {
+            //================================================================================================
+            //ACHTUNG! to jest prowizorka ktorej nie powinno tu byc :P powinno dzialac przez set presence
+            //================================================================================================
+            self.bluetoothController.wakeUpAndSetAuthorization(1, function (err) {
+                if (err) console.log('zjebalo sie');
+                console.log('podlaczylo sie cos');
+            });
+            //KONIEC ACHTUNGA!
+            self.prepareVoting(data.votingID, function (error) {
                 if (error) socket.emit('error', {message: error});
             });
         });
@@ -75,6 +93,22 @@ function SessionFacade(bluetoothController) {
             self.startVoting(function (error) {
                 if (error) socket.emit('error', {message: error});
             });
+        });
+        socket.on('end voting', function () {
+            self.endVoting(function (error) {
+                if (error) socket.emit('error', {message: error});
+            })
+        });
+        socket.on('next question', function () {
+            self.nextSubquestion(function (error) {
+                if (error) socket.emit('error', {message: error});
+            });
+        });
+        socket.on('voted', function (data) {
+            console.log('There is a vote here!');
+            self.vote(data, function (error) {
+                if (error) socket.emit('error', {message: error});
+            })
         });
     })
 }
@@ -115,12 +149,8 @@ SessionFacade.prototype.updateSession = function (callback) {
  */
 SessionFacade.prototype.startSession = function (callback) {
     var self = this;
-    self.bluetoothController.startSession(self);
     self.session.state = STATES.STARTED;
-    self.session.save(function (err) {
-        if (err) return callback(err);
-        return callback(null);
-    });
+    self.session.save(callback);
 };
 
 /**
@@ -137,39 +167,50 @@ SessionFacade.prototype.setPresence = function (voterID, value, callback) {
         if (err) return callback(err);
         if (value) {
             self.session.presence.push(voter);
-            self.bluetoothController.turnOnDevice(voter.group);
+            self.bluetoothController.wakeUpAndSetAuthorization(voter.group, function (err, peripheralID) {
+                if (err) return callback(err);
+                self.session.save(function (err) {
+                    if (err) return callback(err);
+                    async.each(self.session.votings, function (voting, callback2) {
+                        voting.setPresence(function (err) {
+                            if (err) return callback2(err);
+                        });
+                    }, callback);
+                });
+            });
         }
         else {
             self.session.presence.pop(voter);
             self.bluetoothController.turnOffLastDevice();
+            self.session.save(function (err) {
+                if (err) return callback(err);
+                async.each(self.session.votings, function (voting, callback2) {
+                    voting.setPresence(function (err) {
+                        if (err) return callback2(err);
+                    });
+                }, callback);
+            });
         }
-        self.session.save(function (err) {
-            if (err) return callback(err);
-            async.each(self.session.votings, function (voting, callback2) {
-                voting.setPresence(function (err) {
-                    if (err) return callback2(err);
-                });
-            }, callback);
-        });
     });
 };
 
 
-SessionFacade.prototype.setPresenceForExtraVoter = function (votingID, extraVoterID, value, callback)
-{
+SessionFacade.prototype.setPresenceForExtraVoter = function (votingID, extraVoterID, value, callback) {
     if (value) {
         var self = this;
         VotingDataModel.findById(votingID).exec(function (err, voting) {
             if (err) return callback(err);
             for (var i = 0; i < voting.extra_voters.length; i++) {
-                if (voting.extra_voters[i].id == extraVoterID) {
-                    sefl.bluetoothController.turnOnDeviceForExtraVoter(function (err, device) {
-                        if (err) return callback(err);
-                        voting.extra_voters[i].present = true;
-                        voting.extra_voters[i].device = device.id;
-                        voting.save(callback);
-                    })
-                }
+                (function (i) {
+                    if (voting.extra_voters[i].id == extraVoterID) {
+                        self.bluetoothController.wakeUpAndSetAuthorization(VOTER_GROUPS.EXTRA, function (err, device) {
+                            if (err) return callback(err);
+                            voting.extra_voters[i].present = true;
+                            voting.extra_voters[i].device = device.id;
+                            voting.save(callback);
+                        })
+                    }
+                }(i))
             }
         });
     }
@@ -184,10 +225,7 @@ SessionFacade.prototype.endSession = function (callback) {
     var self = this;
     if (self.session.state == STATES.STARTED) {
         self.session.state = STATES.FINISHED;
-        self.session.save(function (err) {
-            if (err) return callback(err);
-            self.bluetoothController.endSession(callback);
-        });
+        self.session.save(callback);
     }
 };
 
@@ -209,20 +247,16 @@ SessionFacade.prototype.checkQuorum = function (callback) {
  * @param votingID - id of next voting
  * @param callback - error handler like function(err)
  */
-SessionFacade.prototype.nextVoting = function (votingID, callback) {
+SessionFacade.prototype.prepareVoting = function (votingID, callback) {
     var self = this;
     self.currentQuestion.id = votingID;
     self.currentQuestion.subquestionNo = 0;
     self.currentQuestion.summary = null;
     VotingDataModel.findById(votingID).exec(function (err, voting) {
         if (err) callback(err);
-        self.bluetoothController.nextVoting(voting, function (err) {
-            if (err) return callback(err);
-            self.webSocket.prepareVoting(voting);
-            return callback(null);
-        });
+        self.webSocket.prepareVoting(voting);
+        return callback(null);
     });
-
 };
 
 /**
@@ -241,7 +275,14 @@ SessionFacade.prototype.startVoting = function (callback) {
                 self.currentQuestion.state = STATES.STARTED;
                 self.updateSession(function (err) {
                     if (err) return callback(err);
-                    self.bluetoothController.startVoting(function (err) {
+                    var BLEQuestion = {
+                        groupNo: voting.allowed_to_vote,
+                        //possibleAnswers: voting.max_answers_number,
+                        possibleAnswers: 1,
+                        id: voting.id,
+                        extraVoters: voting.extra_voters
+                    };
+                    self.bluetoothController.startVoting(BLEQuestion, function (err) {
                         if (err) return callback(err);
                         self.webSocket.startVoting();
                         return callback(null);
@@ -267,9 +308,9 @@ SessionFacade.prototype.revertVoting = function (votingID, callback) {
         voting.answers = [];
         voting.save(function (err) {
             if (err) return callback(err);
-            self.bluetoothController.stopVoting(function (err) {
+            self.bluetoothController.endVoting(function (err) {
                 if (err) return callback(err);
-                self.webSocket.stopVoting();
+                self.webSocket.endVoting();
                 self.webSocket.prepareVoting(voting);
                 return callback(null);
             });
@@ -291,7 +332,7 @@ SessionFacade.prototype.vote = function (vote, callback) {
     VotingDataModel.findById(self.currentQuestion.id).exec(function (err, voting) {
         if (err) return callback(err);
         if (voting.state == STATES.STARTED) {
-            voting.vote(vote.MAC, self.currentQuestion.subquestionNo, vote.value, function (err) {
+            voting.vote(vote.id, self.currentQuestion.subquestionNo, vote.vote, function (err) {
                 if (err) return callback(err);
                 self.updateSession(function (err) {
                     if (err) return callback(err);
@@ -321,8 +362,8 @@ SessionFacade.prototype.nextSubquestion = function (callback) {
     self.currentQuestion.subquestionNo++;
     VotingDataModel.findById(self.currentQuestion.id).exec(function (err, voting) {
         if (voting.variants.length > self.currentQuestion.subquestionNo)
-            self.bluetoothController.nextSubquestion(function (err) {
-                if(err) return callback(err);
+            self.bluetoothController.startNextSubQuestion(function (err) {
+                if (err) return callback(err);
                 self.webSocket.nextSubquestion();
                 return callback(null);
             });
@@ -350,8 +391,8 @@ SessionFacade.prototype.endVoting = function (callback) {
             self.currentQuestion.summary = voting;
             self.updateSession(function (err) {
                 if (err) return callback(err);
-                self.bluetoothController.stopVoting(function (err) {
-                    if(err) return callback(err);
+                self.bluetoothController.endVoting(function (err) {
+                    if (err) return callback(err);
                     self.webSocket.endVoting();
                     return callback(null);
                 });

@@ -19,6 +19,7 @@ var votingSchema = new Schema({
         id: Number,
         content: String
     }],
+    max_answers_number: Number,
     answers: [{
         MAC: String,
         variantId: Number,
