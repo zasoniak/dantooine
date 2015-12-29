@@ -87,7 +87,7 @@
             <%- hidden_field_tag('session_id', session.id) %>
 
             <fieldset class="pure-group">
-                <input type="text" name="question" class="pure-input-1" placeholder="Pytanie" required>
+                <textarea name="question" class="pure-input-1" placeholder="Pytanie" required></textarea>
             </fieldset>
 
             <fieldset>
@@ -103,10 +103,14 @@
                 </label>
 
                 <div id="div-variants" style="display: none; clear: both">
-                    <span class="tip">Wskazówka: po rozpoczęciu wpisywania pojawi się kolejne pole</span>
+                    <input id="number-max-votes" name="max_allowed_variants" type="number" min="1">
+                    <label for="number-max-votes">
+                        Maksymalna liczba możliwych do oddania głosów
+                    </label>
                     <div class="pure-group">
                         <input type="text" name="variants" class="pure-input-1" placeholder="Odpowiedź">
                     </div>
+                    <span id="variants-tip" class="tip">Wskazówka: po rozpoczęciu wpisywania pojawi się kolejne pole</span>
                 </div>
             </fieldset>
 

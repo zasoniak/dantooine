@@ -75,6 +75,7 @@ module.exports = function(passport)
                 _session: session._id,
                 type: request.body.variants_type,
                 question: request.body.question,
+                max_answers_number: request.body.max_allowed_variants,
                 variants: (request.body.variants_type == 2) ? variants : [],
                 allowed_to_vote: request.body.allowed_to_vote,
                 extra_voters: (request.body.additional_voters === "on") ? voters : [],

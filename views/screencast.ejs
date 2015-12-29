@@ -21,7 +21,7 @@
     <article>
         <div class="green">Aktualnie głosujemy</div>
         <h2 class="answer">Dzień dobry!</h2>
-        <div class="green">Zebrano <span data-id="votes-counter">30</span> spośród <span data-id="votes-all">52</span> głosów</div>
+        <div class="green">Zebrano <span data-id="votes-counter">0</span> spośród <span data-id="votes-all">X</span> głosów</div>
     </article>
 </div>
 <% include footer.ejs %>
@@ -40,6 +40,7 @@
     socket.on('voting started', function () {
         console.log('Received voting started event. Starting countdown...');
         startCountdown();
+        nextSubvariant();
     });
     socket.on('voting ended', function (data) {
         console.log('Received voting ended event. Showing results...');
@@ -54,21 +55,7 @@
 
     var countdown = 60;
     var votingCounter = 0;
-    var votesCounter = 0;
     var result = false;
-
-    $('#title').on('click', function () {
-        nextSubvariant();
-        incrementVotingCounter();
-        incrementVotesCounter();
-        if (!result){
-            changeTimeIndicatorToResult();
-        }
-        else {
-            setTimer(30);
-        }
-        result = !result;
-    });
 
     function changeTimeIndicatorToResult() {
         $('#timer').removeClass('green').html('Wyniki');
@@ -80,10 +67,6 @@
 
     function incrementVotingCounter() {
         $('#voting-increment').html(++votingCounter);
-    }
-
-    function incrementVotesCounter() {
-        $('.current-variant').find('[data-id="votes-counter"]').first().html(++votesCounter);
     }
 
     function updateVotesCounter(voted, all) {
@@ -100,6 +83,7 @@
             for (var i=0; i<voting.variants.length; i++) {
                 article.clone().appendTo('#variants').find('.answer').first().html(voting.variants[i].content);
             }
+            article.hide();
         }
         incrementVotingCounter();
         countdown = 60;

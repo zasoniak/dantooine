@@ -126,7 +126,7 @@
             article = $(this).parent().parent();
             revertVotingBoxFromFinished();
             console.log("Emitting revert voting event...");
-            socket.emit('revert voting');
+            socket.emit('revert voting', {votingID: $(this).attr('data-voting')});
         });
 
         $('[data-action="unlock-remotes"]').on('click', function () {
