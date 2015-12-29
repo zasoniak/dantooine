@@ -8,6 +8,7 @@
 <body>
 <% include header.ejs %>
 <div class="cockpit">
+    <!--LISTA OBECNOŚCI-->
     <aside>
         <h3>Lista obecności</h3>
         <div class="pure-form">
@@ -16,12 +17,13 @@
         <ol id="presence-list">
             <% for (var i = 0; i < voters.length; i++) { %>
             <li>
-                <input id="checkbox-present-<%= voters[i].id %>" class="pure-checkbox big" type="checkbox" name="present" value="<%= voters[i].id %>" />
+                <input id="checkbox-present-<%= voters[i].id %>" data-voter="<%= voters[i].id %>" class="pure-checkbox big" type="checkbox" name="present" value="<%= voters[i].id %>"/>
                 <label for="checkbox-present-<%= voters[i].id %>"><%= voters[i].surname + ", " + voters[i].name %></label>
             </li>
             <% } %>
         </ol>
     </aside>
+    <!--GŁOSOWANIA-->
     <section>
         <h3>Głosowania nierozpoczęte</h3>
         <% for (var i=0; i<session.votings.length; i++) { %>
@@ -39,13 +41,8 @@
             <% } else { %>
             <div class="tip">Głosowanie tak/nie</div>
             <% } %>
-            <div>
-                <span class="green">Aktualne głosowanie.</span>
-                Zebrano 5 z 51 głosów.
-            </div>
             <div class="right" style="display: none">
                 <button data-voting="<%= session.votings[i]._id %>" data-action="revert-voting" type="button" class="pure-button">Anuluj głosowanie</button>
-                <button data-voting="<%= session.votings[i]._id %>" data-action="start-voting" type="button" class="pure-button button-primary">Rozpocznij głosowanie</button>
             </div>
             <div class="right" style="display: block">
                 <button data-voting="<%= session.votings[i]._id %>" data-action="prepare-voting" type="button" class="pure-button button-primary">Przygotuj głosowanie</button>
@@ -56,10 +53,17 @@
         <div class="placeholder">Nic jeszcze tu nie ma</div>
     </section>
 </div>
+<!--POPUP GŁOSOWANIA-->
 <div id="popup-manage-voting" class="overlay">
     <section class="popup">
         <h3>Głosowanie</h3>
-        <p>Oddano miliordy głosów</p>
+        <h4>
+
+        </h4>
+        <p>
+            <span class="green">Głosowanie w trakcie.</span>
+            Zebrano 5 z 51 głosów.
+        </p>
         <div class="pure-form">
             <button data-action="unlock-remotes" type="button" class="pure-button button-primary">Odblokuj piloty</button>
             <button data-action="next-subvariant" type="button" class="pure-button button-primary">Następne pytanie</button>
@@ -77,6 +81,9 @@
         socket.on('connect', function () {
             console.log('Połączono kokpit z serwerem :D');
         });
+        socket.on('session error', function (data) {
+            alert(data.message);
+        })
 
         /* SEARCH ENGINE */
         var search = $('#voter-search').first();
@@ -103,17 +110,28 @@
 
         $('[data-action="prepare-voting"]').on('click', function () {
             popup.addClass('active');
+            var question = $(this).parent.siblings("h4").first().html();
+            popup.find('h4').html(question);
             console.log("Emitting prepare voting event...");
             socket.emit('prepare voting', {votingID: $(this).attr('data-voting')});
         });
 
         $('[data-action="close-manage-voting"]').on('click', function () {
             popup.removeClass('active');
+            console.log("Emitting end voting event...");
+            socket.emit('end voting');
         });
 
         $('[data-action="unlock-remotes"]').on('click', function () {
             console.log("Emitting start voting event...");
             socket.emit('start voting');
+        })
+
+        $('[name="present"]').on('change', function () {
+            if ($(this).is(':checked')) {
+                console.log("Emitting set presence event...");
+                socket.emit('set presence', {voterID: $(this).attr('data-voter'), isPresent: true});
+            }
         })
     });
 </script>

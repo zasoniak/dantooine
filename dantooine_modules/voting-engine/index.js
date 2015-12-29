@@ -59,6 +59,9 @@ var VOTER_GROUPS = {
 function SessionFacade(bluetoothController) {
     var self = this;
     this.bluetoothController = new Bluetooth();
+    //this.bluetoothController = new Bluetooth(function (id, result) {
+    //    self.vote(id, result);
+    //});
     this.session = null;
     this.currentQuestion = {};
     this.currentQuestion.id = null;
@@ -67,10 +70,11 @@ function SessionFacade(bluetoothController) {
     this.webSocket = new WebSocket();
     this.cockpitSocket = require('socket.io')(8081);
     this.cockpitSocket.on('connect', function (socket) {
+        console.log('Połączono z kokpitem');
         socket.on('set presence', function (data) {
-            console.warn('Implement!');
+            console.warn('Wlazło!!');
             self.setPresence(data.voterID, data.isPresent, function (error) {
-                if (error) socket.emit('error', {message: error});
+                if (error) socket.emit('session error', {message: error});
             })
         });
         //TODO: set presence for extra voters
@@ -79,35 +83,35 @@ function SessionFacade(bluetoothController) {
             //================================================================================================
             //ACHTUNG! to jest prowizorka ktorej nie powinno tu byc :P powinno dzialac przez set presence
             //================================================================================================
-            self.bluetoothController.wakeUpAndSetAuthorization(1, function (err) {
-                if (err) console.log('zjebalo sie');
-                console.log('podlaczylo sie cos');
-            });
+            //self.bluetoothController.wakeUpAndSetAuthorization(1, function (err) {
+            //    if (err) console.log('zjebalo sie');
+            //    console.log('podlaczylo sie cos');
+            //});
             //KONIEC ACHTUNGA!
             self.prepareVoting(data.votingID, function (error) {
-                if (error) socket.emit('error', {message: error});
+                if (error) socket.emit('session error', {message: error});
             });
         });
         socket.on('start voting', function () {
             console.log('Start voting event received.');
             self.startVoting(function (error) {
-                if (error) socket.emit('error', {message: error});
+                if (error) socket.emit('session error', {message: error});
             });
         });
         socket.on('end voting', function () {
             self.endVoting(function (error) {
-                if (error) socket.emit('error', {message: error});
+                if (error) socket.emit('session error', {message: error});
             })
         });
         socket.on('next question', function () {
             self.nextSubquestion(function (error) {
-                if (error) socket.emit('error', {message: error});
+                if (error) socket.emit('session error', {message: error});
             });
         });
         socket.on('voted', function (data) {
             console.log('There is a vote here!');
             self.vote(data, function (error) {
-                if (error) socket.emit('error', {message: error});
+                if (error) socket.emit('session error', {message: error});
             })
         });
     })

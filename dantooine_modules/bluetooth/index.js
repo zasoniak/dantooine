@@ -56,7 +56,7 @@ function BluetoothController() {
 
     this._socket = io.connect('http://localhost:8081');
     this._socket.on('connect', function () {
-        console.log('Połączono kokpit z serwerem :D');
+        console.log('Połączono blu z serwerem :D');
     });
 
     this._noble.on('discover', function (peripheral) {
@@ -465,6 +465,7 @@ function setupCharacteristicsForNewDevice(characteristics, groupNo, voteCallback
                                 if (data.length === 1) {
                                     var result = data.readUInt8(0);
                                     console.log("przyszlo {}",result);
+                                    //self.voteCallback({plepelpel});
                                     voteCallback.emit('voted',{id: characteristic2._peripheralId, vote: result});
                                 }
                             });

@@ -7,7 +7,6 @@ var moment = require('moment');
 moment.locale('pl');
 
 
-
 /* PRIVATE ZONE */
 module.exports = function(passport)
 {

@@ -41,6 +41,10 @@
         console.log('Received voting started event. Starting countdown...');
         startCountdown();
     });
+    socket.on('voting ended', function (data) {
+        console.log('Received voting ended event. Showing results...');
+        showResults(data.results);
+    })
 
     var article = $('article').first();
 
@@ -60,7 +64,6 @@
             setTimer(30);
         }
         result = !result;
-
     });
 
     function changeTimeIndicatorToResult() {
@@ -80,7 +83,6 @@
     }
 
     function newQuestion(voting) {
-
         $('#question').html(voting.question);
         if (voting.type == 1) {
             article.find('.answer').first().html("TAK / NIE");
@@ -118,7 +120,10 @@
         }
     }
 
-
+    function showResults(results) {
+        changeTimeIndicatorToResult();
+        console.log(results);
+    }
 </script>
 </body>
 </html>
