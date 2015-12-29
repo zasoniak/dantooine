@@ -40,62 +40,70 @@ var votingSchema = new Schema({
     absolute_majority: Boolean
 });
 
-votingSchema.methods.setPresence = function(presenceSummary, callback)
-{
+votingSchema.methods.setPresence = function (presenceSummary, callback) {
     var self = this;
-    for (var it = 0; it <= self.allowed_to_vote; it++) {
-        self.presence_summary[it] = presenceSummary[it];
+    if (self.state == 0) {
+        for (var it = 0; it <= self.allowed_to_vote; it++) {
+            self.presence_summary[it] = presenceSummary[it];
+        }
+        self.save(function (err) {
+            if (err) return callback(err);
+            return callback(null);
+        });
     }
-    self.save(function (err) {
-        if(err) return callback(err);
-        return callback(null);
-    });
+    else return callback(null);
 };
 
 
 votingSchema.methods.checkQuorum = function (callback) {
     var self = this;
-    var presentVotersCount = 0;
-    for (var it = 0; it <= self.allowed_to_vote; it++) {
-        presentVotersCount += self.presence_summary[it];
-    }
-    for (var i = 0; i < self.extra_voters.length; i++) {
-        if (self.extra_voters[i].present)
-            presentVotersCount++;
-    }
-    Voter.find({group: {$lte: self.allowed_to_vote}}).exec(function (err, voters) {
-        if (err) return callback(err);
-        self.allowed_to_vote_summary = [self.allowed_to_vote].fill(0);
-        for (var it = 0; it < voters.length; it++) {
-            self.allowed_to_vote_summary[voters[it].group]++;
+    if (self.state == 0) {
+        var presentVotersCount = 0;
+        for (var it = 0; it <= self.allowed_to_vote; it++) {
+            presentVotersCount += self.presence_summary[it];
         }
-        self.hasQuorum = math.floor((voters.length + self.extra_voters.length) / 2) + 1 <= presentVotersCount;
-        self.save(function (err) {
+        for (var i = 0; i < self.extra_voters.length; i++) {
+            if (self.extra_voters[i].present)
+                presentVotersCount++;
+        }
+        Voter.find({group: {$lte: self.allowed_to_vote}}).exec(function (err, voters) {
             if (err) return callback(err);
-            return callback(null);
+            self.allowed_to_vote_summary = [self.allowed_to_vote].fill(0);
+            for (var it = 0; it < voters.length; it++) {
+                self.allowed_to_vote_summary[voters[it].group]++;
+            }
+            self.hasQuorum = math.floor((voters.length + self.extra_voters.length) / 2) + 1 <= presentVotersCount;
+            self.save(function (err) {
+                if (err) return callback(err);
+                return callback(null);
+            });
         });
-    });
+    }
+    else return callback(null);
 };
 
 votingSchema.methods.vote = function (MAC, answerID, answerValue, callback) {
     var self = this;
-    var answered = false;
-    for (var ansIt = 0; ansIt < self.answers.length; ansIt++) {
-        if (self.answers[ansIt].MAC == MAC && self.answers[ansIt].variantId == answerID) //has already answered
-            answered = true;
+    if (self.state == 1) {
+        var answered = false;
+        for (var ansIt = 0; ansIt < self.answers.length; ansIt++) {
+            if (self.answers[ansIt].MAC == MAC && self.answers[ansIt].variantId == answerID) //has already answered
+                answered = true;
+        }
+        if (!answered) {
+            var temp = {
+                MAC: MAC,
+                variantId: answerID,
+                value: answerValue
+            };
+            self.answers.push(temp);
+            self.save(function (err) {
+                return callback(err);
+            });
+        }
+        return callback(null);
     }
-    if (!answered) {
-        var temp = {
-            MAC: MAC,
-            variantId: answerID,
-            value: answerValue
-        };
-        self.answers.push(temp);
-        self.save(function (err) {
-            return callback(err);
-        });
-    }
-    return callback(null);
+    else return callback(null);
 };
 
 

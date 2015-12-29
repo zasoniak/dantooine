@@ -233,6 +233,7 @@ BluetoothController.prototype.disconnectDevice = function (peripheralID, callbac
  */
 BluetoothController.prototype.startVoting = function (question, callback) {
     var self = this;
+    console.log('rozpoczynamy glosowanie')
     self._currentParameters = {
         groupNo: question.groupNo,
         possibleAnswers: question.possibleAnswers,

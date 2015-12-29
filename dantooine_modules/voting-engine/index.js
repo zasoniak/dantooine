@@ -171,12 +171,17 @@ SessionFacade.prototype.setPresence = function (voterID, value, callback) {
         if (err) return callback(err);
         if (value) {
             self.session.presence.push(voter);
+            console.log(self.session.presence.length);
+            var presenceSummary = [0,0,0,0,0,0,0,0,0,0,0];
+            for (var it = 0; it < self.session.presence.length; it++) {
+                presenceSummary[self.session.presence[it].group]++;
+            }
             self.bluetoothController.wakeUpAndSetAuthorization(voter.group, function (err, peripheralID) {
                 if (err) return callback(err);
                 self.session.save(function (err) {
                     if (err) return callback(err);
                     async.each(self.session.votings, function (voting, callback2) {
-                        voting.setPresence(function (err) {
+                        voting.setPresence(presenceSummary,function (err) {
                             if (err) return callback2(err);
                         });
                     }, callback);
@@ -253,6 +258,7 @@ SessionFacade.prototype.checkQuorum = function (callback) {
  */
 SessionFacade.prototype.prepareVoting = function (votingID, callback) {
     var self = this;
+    console.log("co z tym id?: {}", votingID);
     self.currentQuestion.id = votingID;
     self.currentQuestion.subquestionNo = 0;
     self.currentQuestion.summary = null;
@@ -314,8 +320,7 @@ SessionFacade.prototype.revertVoting = function (votingID, callback) {
             if (err) return callback(err);
             self.bluetoothController.endVoting(function (err) {
                 if (err) return callback(err);
-                self.webSocket.endVoting();
-                self.webSocket.prepareVoting(voting);
+                self.webSocket.endVoting(null);
                 return callback(null);
             });
         });
@@ -345,7 +350,8 @@ SessionFacade.prototype.vote = function (vote, callback) {
                         if (self.currentQuestion.subquestionNo == voting.answers[i].variantId)
                             answersDone++;
                     }
-                    self.webSocket.updateVotes(answersDone, voting.allowed_to_vote.lenght);
+                    self.webSocket.updateVotes(answersDone, voting.allowed_to_vote.length);
+                    self.cockpitSocket.emit('votes updated', {voted: answersDone, all: voting.allowed_to_vote.length});
                 });
             });
         }
@@ -397,7 +403,7 @@ SessionFacade.prototype.endVoting = function (callback) {
                 if (err) return callback(err);
                 self.bluetoothController.endVoting(function (err) {
                     if (err) return callback(err);
-                    self.webSocket.endVoting();
+                    self.webSocket.endVoting(voting);
                     return callback(null);
                 });
             });

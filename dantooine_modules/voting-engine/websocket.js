@@ -26,16 +26,13 @@ WebSocket.prototype.nextSubquestion = function () {
     io.emit('nextSubquestion');
 };
 
-WebSocket.prototype.endVoting = function () {
-    io.emit('endVoting');
+WebSocket.prototype.endVoting = function (result) {
+    io.emit('voting ended', {results: result});
 };
 
-WebSocket.prototype.showResult = function (results) {
-    io.emit('showResult', {results: results});
-};
 
 WebSocket.prototype.updateVotes = function (voted, all) {
-    io.emit('updateVotes', {voted: voted, all: all});
+    io.emit('votes updated', {voted: voted, all: all});
 };
 
 module.exports = WebSocket;
