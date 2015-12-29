@@ -21,7 +21,7 @@
     <article>
         <div class="green">Aktualnie głosujemy</div>
         <h2 class="answer">Dzień dobry!</h2>
-        <div class="green">Zebrano <span data-id="votes-counter">30</span> spośród 52 głosów</div>
+        <div class="green">Zebrano <span data-id="votes-counter">30</span> spośród <span data-id="votes-all">52</span> głosów</div>
     </article>
 </div>
 <% include footer.ejs %>
@@ -44,7 +44,11 @@
     socket.on('voting ended', function (data) {
         console.log('Received voting ended event. Showing results...');
         showResults(data.results);
-    })
+    });
+    socket.on('votes updated', function (data) {
+        console.log('Received votes updated event.');
+        updateVotesCounter(data.voted, data.all);
+    });
 
     var article = $('article').first();
 
@@ -80,6 +84,12 @@
 
     function incrementVotesCounter() {
         $('.current-variant').find('[data-id="votes-counter"]').first().html(++votesCounter);
+    }
+
+    function updateVotesCounter(voted, all) {
+        var current = $('.current-variant');
+        current.find('[data-id="votes-counter"]').first().html(voted);
+        current.find('[data-id="votes-all"]').first().html(all);
     }
 
     function newQuestion(voting) {

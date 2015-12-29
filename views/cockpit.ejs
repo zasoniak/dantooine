@@ -25,10 +25,10 @@
     </aside>
     <!--GŁOSOWANIA-->
     <section>
-        <h3>Głosowania nierozpoczęte</h3>
+        <h3 id="available-votings">Głosowania nierozpoczęte</h3>
         <% for (var i=0; i<session.votings.length; i++) { %>
         <article class="voting">
-            <div class="right">
+            <div data-id="buttons-corner" class="right">
                 <button type="button" class="pure-button">Edytuj</button>
             </div>
             <h4><%= session.votings[i].question %></h4>
@@ -41,16 +41,15 @@
             <% } else { %>
             <div class="tip">Głosowanie tak/nie</div>
             <% } %>
-            <div class="right" style="display: none">
+            <div class="right" data-id="buttons-finished" style="display: none">
                 <button data-voting="<%= session.votings[i]._id %>" data-action="revert-voting" type="button" class="pure-button">Anuluj głosowanie</button>
             </div>
-            <div class="right" style="display: block">
+            <div class="right" data-id="buttons-available" style="display: block">
                 <button data-voting="<%= session.votings[i]._id %>" data-action="prepare-voting" type="button" class="pure-button button-primary">Przygotuj głosowanie</button>
             </div>
         </article>
         <% } %>
-        <h3>Głosowania zakończone</h3>
-        <div class="placeholder">Nic jeszcze tu nie ma</div>
+        <h3 id="finished-votings">Głosowania zakończone</h3>
     </section>
 </div>
 <!--POPUP GŁOSOWANIA-->
@@ -58,15 +57,17 @@
     <section class="popup">
         <h3>Głosowanie</h3>
         <h4>
-
         </h4>
-        <p>
-            <span class="green">Głosowanie w trakcie.</span>
-            Zebrano 5 z 51 głosów.
-        </p>
         <div class="pure-form">
             <button data-action="unlock-remotes" type="button" class="pure-button button-primary">Odblokuj piloty</button>
-            <button data-action="next-subvariant" type="button" class="pure-button button-primary">Następne pytanie</button>
+        </div>
+        <p>
+            <span class="green">Głosowanie w trakcie.</span>
+            Zebrano <span data-id="votes-counter">30</span> spośród <span data-id="votes-all">52</span> głosów.
+        </p>
+        <div class="pure-form">
+            <button data-action="cancel-voting" type="button" class="pure-button">Anuluj głosowanie</button>
+            <button data-action="next-subvariant" type="button" class="pure-button">Następne pytanie</button>
             <button data-action="close-manage-voting" type="button" class="pure-button button-primary">Zakończ głosowanie</button>
         </div>
     </section>
@@ -83,7 +84,10 @@
         });
         socket.on('session error', function (data) {
             alert(data.message);
-        })
+        });
+        socket.on('votes updated', function (data) {
+            updateVotesCounter(data.voted, data.all);
+        });
 
         /* SEARCH ENGINE */
         var search = $('#voter-search').first();
@@ -107,32 +111,73 @@
 
         /* VOTING COCKPIT */
         var popup = $('#popup-manage-voting');
+        var article;
 
         $('[data-action="prepare-voting"]').on('click', function () {
             popup.addClass('active');
-            var question = $(this).parent.siblings("h4").first().html();
+            article = $(this).parent().parent();
+            var question = article.find("h4").first().html();
             popup.find('h4').html(question);
             console.log("Emitting prepare voting event...");
             socket.emit('prepare voting', {votingID: $(this).attr('data-voting')});
         });
 
-        $('[data-action="close-manage-voting"]').on('click', function () {
-            popup.removeClass('active');
-            console.log("Emitting end voting event...");
-            socket.emit('end voting');
+        $('[data-action="revert-voting"]').on('click', function () {
+            article = $(this).parent().parent();
+            revertVotingBoxFromFinished();
+            console.log("Emitting revert voting event...");
+            socket.emit('revert voting');
         });
 
         $('[data-action="unlock-remotes"]').on('click', function () {
             console.log("Emitting start voting event...");
             socket.emit('start voting');
-        })
+        });
+
+        $('[data-action="cancel-voting"]').on('click', function () {
+            popup.removeClass('active');
+            console.log("Emitting revert voting event...");
+            socket.emit('revert voting');
+        });
+
+        $('[data-action="next-subvariant"]').on('click', function () {
+            console.log("Emitting next subquestion event...");
+            socket.emit('next subquestion');
+        });
+
+        $('[data-action="close-manage-voting"]').on('click', function () {
+            popup.removeClass('active');
+            changeVotingBoxToFinished();
+            console.log("Emitting end voting event...");
+            socket.emit('end voting');
+        });
 
         $('[name="present"]').on('change', function () {
             if ($(this).is(':checked')) {
                 console.log("Emitting set presence event...");
                 socket.emit('set presence', {voterID: $(this).attr('data-voter'), isPresent: true});
             }
-        })
+        });
+
+        function updateVotesCounter(voted, all) {
+            var current = $('.current-variant');
+            current.find('[data-id="votes-counter"]').first().html(voted);
+            current.find('[data-id="votes-all"]').first().html(all);
+        }
+
+        function changeVotingBoxToFinished() {
+            $('#finished-votings').after(article);
+            article.find('[data-id="buttons-finished"]').show();
+            article.find('[data-id="buttons-corner"]').hide();
+            article.find('[data-id="buttons-available"]').hide();
+        }
+
+        function revertVotingBoxFromFinished() {
+            $('#available-votings').after(article);
+            article.find('[data-id="buttons-finished"]').hide();
+            article.find('[data-id="buttons-corner"]').show();
+            article.find('[data-id="buttons-available"]').show();
+        }
     });
 </script>
 </body>
