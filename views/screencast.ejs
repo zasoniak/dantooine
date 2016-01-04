@@ -79,6 +79,7 @@
         $('#question').html(voting.question);
         if (voting.type == 1) {
             article.find('.answer').first().html("TAK / NIE");
+            nextSubvariant();
         } else if (voting.type == 2) {
             for (var i=0; i<voting.variants.length; i++) {
                 article.clone().appendTo('#variants').find('.answer').first().html(voting.variants[i].content);

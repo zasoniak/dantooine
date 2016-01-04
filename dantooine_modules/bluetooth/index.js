@@ -244,13 +244,13 @@ BluetoothController.prototype.startVoting = function (question, callback) {
     async.series([
         function (callback2) {
             async.each(self._currentParameters.extraVoters, function (uuid, callback3) {
-                //if (self._connected[uuid].peripheral.state == 'disconnected') {
+                if(self._connected[uuid])
                 reconnectDevice(self._connected[uuid], self._socket, function (err) {
                     if (err) callback3(err);
                     console.log('reconnected after: ' + (new Date().getTime() - beginTime));
                     setupCharacteristicsToStartVotingForExtraVoter(self._connected[uuid].characteristics, self._currentParameters.possibleAnswers, self._currentParameters.groupNo, callback3);
                 });
-                //}
+                else callback3(null);
                 //setupCharacteristicsToStartVotingForExtraVoter(self._connected[uuid].characteristics, self._currentParameters.possibleAnswers, self._currentParameters.groupNo, callback3);
             }, function (err) {
                 if (err) return callback2(err);
@@ -258,27 +258,32 @@ BluetoothController.prototype.startVoting = function (question, callback) {
             })
         },
         function (callback2) {
+            console.log('no co jest?!');
             async.each(Object.keys(self._connected), function (uuid, callback3) {
-                if (self._connected[uuid].groupNo <= self._currentParameters.groupNo) {
-                    console.log('reconnecting after: ' + (new Date().getTime() - beginTime));
-                    //if (self._connected[uuid].peripheral.state == 'disconnected') {
-                    setupCharacteristicsToStartVoting(self._connected[uuid].characteristics, self._currentParameters.possibleAnswers, self._currentParameters.groupNo, function (err) {
-                        if (err) return callback3(err);
-                        console.log('setup after:' + (new Date().getTime() - beginTime));
-                        callback3(null);
-                    });
-                    //reconnectDevice(self._connected[uuid], self._voteCallback, function (err) {
-                    //    if (err) callback3(err);
-                    //    console.log('reconnected after: ' + (new Date().getTime() - beginTime));
-                    //    setupCharacteristicsToStartVoting(self._connected[uuid].characteristics, self._currentParameters.possibleAnswers, self._currentParameters.groupNo, function (err) {
-                    //        if (err) return callback3(err);
-                    //        console.log('setup after:' + (new Date().getTime() - beginTime));
-                    //        callback3(null);
-                    //    });
-                    //});
+                console.log('no co jest?! {}', uuid);
+                if(self._connected[uuid]) {
+                    if (self._connected[uuid].groupNo <= self._currentParameters.groupNo) {
+                        console.log('reconnecting after: ' + (new Date().getTime() - beginTime));
+                        //if (self._connected[uuid].peripheral.state == 'disconnected') {
+                        setupCharacteristicsToStartVoting(self._connected[uuid].characteristics, self._currentParameters.possibleAnswers, self._currentParameters.groupNo, function (err) {
+                            if (err) return callback3(err);
+                            console.log('setup after:' + (new Date().getTime() - beginTime));
+                            callback3(null);
+                        });
+                        //reconnectDevice(self._connected[uuid], self._voteCallback, function (err) {
+                        //    if (err) callback3(err);
+                        //    console.log('reconnected after: ' + (new Date().getTime() - beginTime));
+                        //    setupCharacteristicsToStartVoting(self._connected[uuid].characteristics, self._currentParameters.possibleAnswers, self._currentParameters.groupNo, function (err) {
+                        //        if (err) return callback3(err);
+                        //        console.log('setup after:' + (new Date().getTime() - beginTime));
+                        //        callback3(null);
+                        //    });
+                        //});
+                    }
+                    //setupCharacteristicsToStartVoting(self._connected[uuid].characteristics, self._currentParameters.possibleAnswers, self._currentParameters.groupNo, callback3);
+                    //}
+                    else callback3(null);
                 }
-                //setupCharacteristicsToStartVoting(self._connected[uuid].characteristics, self._currentParameters.possibleAnswers, self._currentParameters.groupNo, callback3);
-                //}
                 else callback3(null);
             }, function (err) {
                 if (err) return callback2(err);
@@ -299,29 +304,39 @@ BluetoothController.prototype.startVoting = function (question, callback) {
  * @param callback - function(error)
  */
 BluetoothController.prototype.startNextSubQuestion = function (callback) {
+    console.log('ble startuje next subQ');
     var self = this;
-    async.series([
-        function (callback2) {
-            async.each(self._currentParameters.extraVoters, function (uuid, callback3) {
-                setupCharacteristicsToStartNextSubQuestionForExtraVoter(self._connected[uuid].characteristics, self._currentParameters.groupNo, callback3);
-            }, function (err) {
-                if (err) callback2(err);
-                callback2(null);
-            })
-        },
-        function (callback2) {
-            async.each(Object.keys(self._connected), function (uuid, callback3) {
-                if (self._connected[uuid].groupNo <= self._currentParameters.groupNo)
-                    setupCharacteristicsToStartNextSubQuestion(self._connected[uuid].characteristics, self._currentParameters.groupNo, callback3);
-                else callback3(null);
-            }, function (err) {
-                if (err) callback2(err);
-                callback2(null);
-            })
-        }
-    ], function (err) {
-        if (err) return callback(err);
-        return callback(null);
+    self.endVoting(function (err) {
+        if(err) return callback(err);
+        console.log('ble zakonczylo ostatnie pytanie');
+        async.series([
+            function (callback2) {
+                async.each(self._currentParameters.extraVoters, function (uuid, callback3) {
+                    if(self._connected[uuid])
+                    {
+                        setupCharacteristicsToStartNextSubQuestionForExtraVoter(self._connected[uuid].characteristics, self._currentParameters.groupNo, callback3);
+                    }
+                    else callback3(null);
+                }, function (err) {
+                    if (err) callback2(err);
+                    callback2(null);
+                })
+            },
+            function (callback2) {
+                async.each(Object.keys(self._connected), function (uuid, callback3) {
+                    if (self._connected[uuid].groupNo <= self._currentParameters.groupNo)
+                        setupCharacteristicsToStartNextSubQuestion(self._connected[uuid].characteristics, self._currentParameters.groupNo, callback3);
+                    else callback3(null);
+                }, function (err) {
+                    if (err) callback2(err);
+                    callback2(null);
+                })
+            }
+        ], function (err) {
+            if (err) return callback(err);
+            console.log('ble wystartowalo next subQ');
+            return callback(null);
+        });
     });
 };
 
@@ -478,62 +493,5 @@ function setupCharacteristicsForNewDevice(characteristics, groupNo, voteCallback
         }
     });
 }
-
-
-
-//
-//BluetoothController.prototype.startSession = function (session) {
-//    BLElog('sesja '+session.name+' rozpooczęta.');
-//};
-//
-//BluetoothController.prototype.turnOnDevice = function (device, callback) {
-//    BLElog('urządzenie włączone.');
-//    return callback(null);
-//
-//};
-//
-//BluetoothController.prototype.turnOffLastDevice = function (callback) {
-//    BLElog('urządzenie wyłączone.');
-//    return callback(null);
-//};
-//
-//BluetoothController.prototype.turnOnDeviceForExtraVvoter = function (device, callback) {
-//    BLElog('dodatkowe urzadzenie włączone.');
-//    return callback(null);
-//};
-//
-//BluetoothController.prototype.endSession = function (callback) {
-//    BLElog('sesja zakończona.');
-//    return callback(null);
-//
-//};
-//
-//BluetoothController.prototype.prepareVoting = function (voting, callback) {
-//    BLElog('następne głosowanie.');
-//    return callback(null);
-//
-//};
-//
-//BluetoothController.prototype.startVoting = function (callback) {
-//    BLElog('głosowanie rozpoczęte.');
-//    return callback(null);
-//
-//};
-//
-//BluetoothController.prototype.stopVoting = function (callback) {
-//    BLElog('głosowanie zakończone.');
-//    return callback(null);
-//
-//};
-//
-//BluetoothController.prototype.nextSubquestion = function (callback) {
-//    BLElog('następny wariant odpowiedzi.');
-//    return callback(null);
-//
-//};
-//
-//function BLElog(msg) {
-//    console.log('Bluetooth: '+msg);
-//}
 
 module.exports = BluetoothController;

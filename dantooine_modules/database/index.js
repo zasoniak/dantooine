@@ -21,7 +21,7 @@ var Voting = require("./models/voting");
  * configuration of database connection
  */
 function initialize() {
-    mongoose.set('debug', true);
+  //  mongoose.set('debug', true);
     mongoose.connect(configuration.url);
 }
 

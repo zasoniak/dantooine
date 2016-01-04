@@ -32,40 +32,61 @@ var Voter = require('../database').Voter;
 var Voting = require('../database').Voting;
 var Session = require('../database').Session;
 
-/**
- * generate presence list for specified council
- * @param councilID
- * @returns {*} pdf file with members list
- */
-module.exports.getPresenceList = function(sessionID, callback)
-{
-    //Session.findById(sessionID).populate("_council").exec(function (err,session) {
-    //    console.log(session);
-    //    if(err) errorHandler(err);
-    //    session._council.populate('voters', function (err, council) {
-    //        console.log("dziala");
-    //        var page = ejs.render(read(__dirname + '/views/presenceList.ejs', 'utf-8'),{session:session, voters: council.voters});
-    //        return pdfGenerator(page,{pageSize:'A4'});
-    //    });
-    //});
+var fs = require('fs');
+var async = require('async');
+var archiver = require('archiver');
+var EasyZip = require('easy-zip').EasyZip;
 
+
+var getPresenceList = function (request, response) {
     Voter.find().exec(function (err, voters) {
-        var page = ejs.render(read(__dirname + '/views/presenceList.ejs', 'utf-8'),{voters: voters});
-        callback(null, pdfGenerator(page,{pageSize:'A4'}));
+        if (err) response.status(500).send('Something broke!');
+        var page = ejs.render(read(__dirname + '/views/presenceList.ejs', 'utf-8'), {voters: voters});
+        pdfGenerator(page, {pageSize: 'A4'}).pipe(response);
     });
 };
 
-/**
- * generates voting summary protocol for specified voting
- * @param votingID
- * @returns {*} pdf file with voting summary protocol
- */
-module.exports.getVotingProtocol = function(votingID, callback)
-{
-    var page ="error";
-    Voting.findById(votingID, function(err,voting){
-        if(err) callback(err,null);
-        page = ejs.render(read(__dirname + '/views/votingProtocol.ejs', 'utf-8'),{voting:voting});
-        callback(null,pdfGenerator(page,{pageSize:'A4'}));
+
+var getVotingProtocol = function (votingID, request, response) {
+    Voting.findById(votingID, function (err, voting) {
+        if (err) response.status(500).send('Something broke!');
+        var page = ejs.render(read(__dirname + '/views/votingProtocol.ejs', 'utf-8'), {voting: voting});
+        pdfGenerator(page, {pageSize: 'A4'}).pipe(response);
     });
 };
+
+var getAllVotingProtocols = function (sessionID, request, response) {
+    Session.findById(sessionID).populate('votings').exec(function (err, session) {
+        if (err) response.status(500).send('Something broke!');
+        var page = null;
+        async.series([function (callback) {
+            async.each(session.votings, function (voting, callback2) {
+                page = ejs.render(read(__dirname + '/views/votingProtocol.ejs', 'utf-8'), {voting: voting});
+                pdfGenerator(page, {pageSize: 'A4'}).pipe(fs.createWriteStream(__dirname + '/tmp/' + voting.id + '.pdf'));
+                callback2(null);
+            }, function (err) {
+                if (err) response.status(500).send('Something broke!');
+                callback(err, null);
+            });
+        }, function (callback) {
+            var path = __dirname + "/tmp/";
+            //var archive = archiver('zip');
+            //archive.pipe(response);
+            //archive.bulk([
+            //    { expand: true, cwd: path, src: ['*.pdf'], dest: 'protokoly.pdf'}
+            //]);
+            //archive.finalize();
+
+            var zip = new EasyZip();
+            zip.zipFolder(path, function () {
+                zip.writeToResponse(response, 'protocoly');
+                callback(null);
+            });
+        }]);
+
+    });
+};
+
+module.exports.getPresenceList = getPresenceList;
+module.exports.getVotingProtocol = getVotingProtocol;
+module.exports.getAllVotingProtocols = getAllVotingProtocols;

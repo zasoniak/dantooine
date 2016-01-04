@@ -30,7 +30,7 @@
     <div class="action-bar">
         <a href="<%= '/session/' + session.id + '/presence' %>" target="_blank" class="pure-button">Generuj listę
             obecności<img src="/images/icon_pdf.gif" class="filetype"/></a>
-        <button type="button" class="pure-button">Generuj raport<img src="/images/icon_pdf.gif" class="filetype"/></button>
+        <a href="<%= '/session/' + session.id + '/protocols' %>" target="_blank" type="button" class="pure-button">Generuj raport<img src="/images/icon_pdf.gif" class="filetype"/></a>
         <button type="button" id="button-add-counter" class="pure-button">Dodaj skrutatora</button>
         <button type="button" id="button-add-question" class="pure-button">Dodaj głosowanie</button>
         <button type="button" id="button-start-session" class="pure-button button-primary">Rozpocznij sesję</button>

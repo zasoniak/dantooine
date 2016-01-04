@@ -40,11 +40,26 @@ var votingSchema = new Schema({
     absolute_majority: Boolean
 });
 
-votingSchema.methods.setPresence = function (presenceSummary, callback) {
+
+votingSchema.methods.setAllowedToVote = function (callback) {
+    var self = this;
+    Voter.find({group: {$lte: self.allowed_to_vote}}).exec(function (err, voters) {
+        if (err) return callback(err);
+        self.allowed_to_vote_summary = Array(self.allowed_to_vote+1).fill(0);
+        for (var it = 0; it < voters.length; it++) {
+            self.allowed_to_vote_summary[voters[it].group]++;
+        }
+        return callback(null);
+    });
+};
+
+votingSchema.methods.setPresence = function (session, callback) {
     var self = this;
     if (self.state == 0) {
-        for (var it = 0; it <= self.allowed_to_vote; it++) {
-            self.presence_summary[it] = presenceSummary[it];
+        self.presence_summary = Array(self.allowed_to_vote+1).fill(0);
+        for (var it = 0; it <= session.length; it++) {
+            if (session.presence[it].group <= self.allowed_to_vote)
+                self.presence_summary[session.presence[it].group]++;
         }
         self.save(function (err) {
             if (err) return callback(err);
@@ -66,17 +81,17 @@ votingSchema.methods.checkQuorum = function (callback) {
             if (self.extra_voters[i].present)
                 presentVotersCount++;
         }
-        Voter.find({group: {$lte: self.allowed_to_vote}}).exec(function (err, voters) {
+        var allowedCount = 0;
+        for (var it2 = 0; it2 <= self.allowed_to_vote; it2++) {
+            allowedCount += self.allowed_to_vote_summary[it2];
+        }
+        allowedCount += self.extra_voters.length;
+
+
+        self.hasQuorum = math.floor((allowedCount) / 2) + 1 <= presentVotersCount;
+        self.save(function (err) {
             if (err) return callback(err);
-            self.allowed_to_vote_summary = [self.allowed_to_vote].fill(0);
-            for (var it = 0; it < voters.length; it++) {
-                self.allowed_to_vote_summary[voters[it].group]++;
-            }
-            self.hasQuorum = math.floor((voters.length + self.extra_voters.length) / 2) + 1 <= presentVotersCount;
-            self.save(function (err) {
-                if (err) return callback(err);
-                return callback(null);
-            });
+            return callback(null);
         });
     }
     else return callback(null);
