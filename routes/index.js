@@ -8,11 +8,30 @@ moment.locale('pl');
 
 
 /* PRIVATE ZONE */
-module.exports = function (passport) {
+module.exports = function(passport)
+{
+    /* FORMS */
+    router.post('/forms/voting', isAjax, function (request, response, next) {
+        var Session = require('../dantooine_modules/database').Session;
+        Session.findById(request.body.sessionID, function (err, session) {
+            if (err) errorHandler(err);
+            response.render('forms/voting', {session: session, title: "Dodaj głosowanie", method: 'post', action: '/voting'});
+        });
+    });
+
+    /* FORMS */
+    router.post('/forms/voting/:id', isAjax, function (request, response, next) {
+        var id = request.params.id;
+        var Voting = require('../dantooine_modules/database').Voting;
+        Voting.findById(id, function (err, voting) {
+            if (err) errorHandler(err);
+            response.render('forms/voting', {session: null, title: "Edytuj głosowanie", method: 'put', action: '/voting/'+id, voting: voting});
+        });
+    });
 
     /* GET dashboard */
     router.get('/dashboard', function (req, res, next) {
-        res.render('dashboard', {title: 'Dashboard'});
+        res.render('dashboard', { title: 'Dashboard' });
     });
 
     /* GET sessions screen */
@@ -20,7 +39,7 @@ module.exports = function (passport) {
         var Session = require('../dantooine_modules/database').Session;
         Session.find({}, function (err, sessions) {
             if (err) errorHandler(err);
-            response.render('sessions', {title: 'Rada Wydziału', sessions: sessions, moment: moment});
+            response.render('sessions', { title: 'Rada Wydziału', sessions: sessions, moment: moment });
         });
     });
 
@@ -34,9 +53,10 @@ module.exports = function (passport) {
                 date: date.format(),
                 description: request.body.description
             });
-        session.save(function (err) {
-            if (err) errorHandler(err);
-            response.redirect('/session/' + session.id);
+        session.save(function(err)
+        {
+            if(err) errorHandler(err);
+            response.redirect('/session/'+session.id);
         });
     });
 
@@ -49,17 +69,19 @@ module.exports = function (passport) {
             if (err) errorHandler(err);
             var variants = [];
             var voters = [];
-            for (var i = 0; i < request.body.variants.length; i++) {
+            for(var i=0; i<request.body.variants.length; i++)
+            {
                 if (request.body.variants[i] != '') {
-                    variants[i] = {
+                    variants[i]={
                         id: i,
                         content: request.body.variants[i]
                     };
                 }
             }
-            for (var j = 0; j < request.body.additional_voters_title.length; j++) {
+            for(var j=0; j<request.body.additional_voters_title.length; j++)
+            {
                 if (request.body.additional_voters_title[i] != '') {
-                    voters[i] = {
+                    voters[i]={
                         title: request.body.additional_voters_title[i],
                         name: request.body.additional_voters_name[i],
                         surname: request.body.additional_voters_surname[i]
@@ -84,10 +106,51 @@ module.exports = function (passport) {
                 voting.save(function (err) {
                     if (err) errorHandler(err);
                     request.flash('message', 'Pomyślnie dodano głosowanie');
-                    response.redirect('/session/' + id);
+                    response.redirect('/session/'+id);
                 })
             });
         });
+    });
+
+    /* EDIT session voting ajax request */
+    router.put('/voting/:id', isAjax, function (request, response, next) {
+        // prepare things
+        var variants = [];
+        var voters = [];
+        for(var i=0; i<request.body.variants.length; i++)
+        {
+            if (request.body.variants[i] != '') {
+                variants[i]={
+                    id: i,
+                    content: request.body.variants[i]
+                };
+            }
+        }
+        for(var j=0; j<request.body.additional_voters_title.length; j++)
+        {
+            if (request.body.additional_voters_title[i] != '') {
+                voters[i]={
+                    title: request.body.additional_voters_title[i],
+                    name: request.body.additional_voters_name[i],
+                    surname: request.body.additional_voters_surname[i]
+                };
+            }
+        }
+        // save things
+        var Voting = require('../dantooine_modules/database').Voting;
+        Voting.findByIdAndUpdate(request.param.id,
+            {
+                type: request.body.variants_type,
+                question: request.body.question,
+                max_answers_number: request.body.max_allowed_variants,
+                variants: (request.body.variants_type == 2) ? variants : [],
+                allowed_to_vote: request.body.allowed_to_vote,
+                extra_voters: (request.body.additional_voters === "on") ? voters : [],
+                quorum: (request.body.quorum === "on"),
+                absolute_majority: (request.body.absolute === "on")
+            }).exec();
+        request.flash('message', 'Pomyślnie edytowano głosowanie');
+        response.sendStatus(204);
     });
 
     /* GET home page. */
@@ -108,7 +171,7 @@ module.exports = function (passport) {
             session.save(function (err) {
                 if (err) errorHandler(err);
                 request.flash('message', 'Usunięto skrutatora');
-                response.redirect('/session/' + id);
+                response.redirect('/session/'+id);
             });
         });
     });
@@ -128,27 +191,27 @@ module.exports = function (passport) {
             session.save(function (err) {
                 if (err) errorHandler(err);
                 request.flash('message', 'Pomyślnie dodano skrutatora');
-                response.redirect('/session/' + id);
+                response.redirect('/session/'+id);
             });
         });
     });
 
+    /* GET session info */
     router.get('/session/:id/presence', function (request, response, next) {
         var id = request.params.id;
-        pdf.getPresenceList(request, response);
-    });
+        pdf.getPresenceList(id, function (err, votingProtocol) {
+           if(err) errorHandler(err);
+            votingProtocol.pipe(response);
+        });
 
-
-    router.get('/session/:id/protocols', function (request, response, next) {
-        var id = request.params.id;
-        pdf.getAllVotingProtocols(id, request, response);
+        //response.download('/doctest/'+id, 'report.pdf');
     });
 
     router.get('/session/:id/screencast', function (request, response) {
         var id = request.params.id;
         var Session = require('../dantooine_modules/database').Session;
-        Session.findById(id).populate('votings').exec(function (err, session) {
-            if (err) errorHandler(err);
+        Session.findById(id).populate('votings').exec(function(err, session) {
+            if(err) errorHandler(err);
             response.render('screencast',
                 {
                     session: session,
@@ -161,14 +224,14 @@ module.exports = function (passport) {
     router.get('/session/:id/cockpit', isLoggedIn, function (request, response, next) {
         var Session = require('../dantooine_modules/database').Session;
         var Voter = require('../dantooine_modules/database').Voter;
-        Session.findById(request.params.id).populate('votings').exec(function (err, session) {
-            if (err) errorHandler(err);
-            Voter.find().sort({surname: 1, name: 1}).exec(function (err, voters) {
-                if (err) errorHandler(err);
+        Session.findById(request.params.id).populate('votings').exec(function(err, session) {
+            if(err) errorHandler(err);
+            Voter.find().sort({ surname: 1, name: 1 }).exec(function (err, voters) {
+                if(err) errorHandler(err);
                 dantooine.loadSession(session.id, function (err) {
-                    if (err) errorHandler(err);
+                    if(err) errorHandler(err);
                     dantooine.startSession(function (err) {
-                        if (err) errorHandler(err);
+                        if(err) errorHandler(err);
                     });
                 });
                 response.render('cockpit',
@@ -187,8 +250,8 @@ module.exports = function (passport) {
     router.get('/session/:id', isLoggedIn, function (request, response, next) {
         var id = request.params.id;
         var Session = require('../dantooine_modules/database').Session;
-        Session.findById(id).populate('votings').exec(function (err, session) {
-            if (err) errorHandler(err);
+        Session.findById(id).populate('votings').exec(function(err, session) {
+            if(err) errorHandler(err);
             response.render('session',
                 {
                     title: "Posiedzenie nr " + session.name,
@@ -202,7 +265,7 @@ module.exports = function (passport) {
     /* GET voters overview */
     router.get('/voters', isLoggedIn, function (request, response, next) {
         var Voter = require('../dantooine_modules/database').Voter;
-        Voter.find().sort({surname: 1, name: 1}).exec(
+        Voter.find().sort({ surname: 1, name: 1 }).exec(
             function (err, voters) {
                 if (err) errorHandler(err);
                 response.render('voters',
@@ -211,7 +274,7 @@ module.exports = function (passport) {
                         voters: voters,
                         message: request.flash('message')
                     });
-            });
+        });
     });
 
     /* DELETE voter ajax request */
@@ -233,7 +296,7 @@ module.exports = function (passport) {
                 specialty: request.body.specialty,
                 group: request.body.group
             }).exec();
-        request.flash('message', 'Pomyślnie edytowano głosującego ' + voter.name + ' ' + voter.surname);
+        request.flash('message', 'Pomyślnie edytowano głosującego '+voter.name+' '+voter.surname);
         response.sendStatus(204);
     });
 
@@ -249,9 +312,10 @@ module.exports = function (passport) {
                 specialty: request.body.specialty,
                 group: request.body.group
             });
-        voter.save(function (err) {
-            if (err) errorHandler(err);
-            request.flash('message', 'Pomyślnie dodano głosującego ' + voter.name + ' ' + voter.surname);
+        voter.save(function(err)
+        {
+            if(err) errorHandler(err);
+            request.flash('message', 'Pomyślnie dodano głosującego '+voter.name+' '+voter.surname);
             response.redirect('/voters');
         });
     });
@@ -290,7 +354,7 @@ module.exports = function (passport) {
     });
 
     /* GET home page */
-    router.get('/', function (request, response, next) {
+    router.get('/', function(request, response, next) {
         response.render('index',
             {
                 message: request.flash('message'),

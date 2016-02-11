@@ -24,6 +24,21 @@
         <div class="green">Zebrano <span data-id="votes-counter">0</span> spośród <span data-id="votes-all">X</span> głosów</div>
     </article>
 </div>
+<div class="content" id="results" style="display: none;">
+    <table class="pure-table">
+        <thead>
+            <tr>
+                <th>Odpowiedź</th><th>TAK</th><th>NIE</th><th>WSTM</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th>Wariant</th>
+                <td>TAK</td><td>NIE</td><td>WSTM</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 <% include footer.ejs %>
 <script type="text/javascript" src="/lib/node_modules/jquery/dist/jquery.js"></script>
 <script type="text/javascript" src="/lib/node_modules/socket.io-client/socket.io.js"></script>
@@ -31,7 +46,7 @@
 
     var socket = io.connect('http://localhost:8080');
     socket.on('connect', function () {
-        console.log('Połączono rzutnik z serwerem :D');
+        console.log('find("tbody").first().Połączono rzutnik z serwerem :D');
     });
     socket.on('voting prepared', function (data) {
         console.log('Received voting prepared event.');
@@ -51,11 +66,14 @@
         updateVotesCounter(data.voted, data.all);
     });
 
-    var article = $('article').first();
+    var article = $('article').first().clone();
 
     var countdown = 60;
     var votingCounter = 0;
     var result = false;
+    var resultsDiv = $('#results');
+    var resultsTableBody = resultsDiv.find('tbody').first();
+    var variantsDiv = $('#variants');
 
     function changeTimeIndicatorToResult() {
         $('#timer').removeClass('green').html('Wyniki');
@@ -76,6 +94,7 @@
     }
 
     function newQuestion(voting) {
+        $('#variants').empty();
         $('#question').html(voting.question);
         if (voting.type == 1) {
             article.find('.answer').first().html("TAK / NIE");
@@ -84,7 +103,6 @@
             for (var i=0; i<voting.variants.length; i++) {
                 article.clone().appendTo('#variants').find('.answer').first().html(voting.variants[i].content);
             }
-            article.hide();
         }
         incrementVotingCounter();
         countdown = 60;
@@ -115,9 +133,54 @@
         }
     }
 
+    function prepareResultsTable(results) {
+        var tr = resultsTableBody.find("tr").first().clone();
+        resultsTableBody.empty();
+        var answers = results.answers;
+        for (var v = 0; v < results.variants.length; v++) {
+            var variant = results.variants[v];
+            var newRow = tr.clone();
+            newRow.find('th').first().html(variant.content);
+            // yes votes
+            var yesVotes = 0;
+            for (var a = 0; a < answers.length; a++) {
+                var answer = answers[a];
+                if (answer.variantId == variant.id && answer.value == 1) {
+                    yesVotes++;
+                }
+            }
+            // no votes
+            var noVotes = 0;
+            for (var a = 0; a < answers.length; a++) {
+                var answer = answers[a];
+                if (answer.variantId == variant.id && answer.value == 2) {
+                    noVotes++;
+                }
+            }
+            // refrain votes
+            var refrainVotes = 0;
+            for (var a = 0; a < answers.length; a++) {
+                var answer = answers[a];
+                if (answer.variantId == variant.id && answer.value == 3) {
+                    refrainVotes++;
+                }
+            }
+            // put into table
+            var cells = newRow.children('td');
+            cells[0].html(yesVotes);
+            cells[1].html(noVotes);
+            cells[2].html(refrainVotes);
+            // add row to table
+            resultsTableBody.append(newRow);
+        }
+    }
+
     function showResults(results) {
         changeTimeIndicatorToResult();
-        console.log(results);
+        variantsDiv.hide();
+        prepareResultsTable(results);
+        resultsDiv.show();
+        console.log("Results done!");
     }
 </script>
 </body>

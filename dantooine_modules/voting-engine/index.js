@@ -7,7 +7,7 @@
  * @author Mateusz Zasonski
  */
 
-var Bluetooth = require('../bluetooth');
+var Bluetooth = require('../bluetooth/mockindex');
 var WebSocket = require('./websocket');
 
 /**

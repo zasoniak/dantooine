@@ -45,7 +45,11 @@ votingSchema.methods.setAllowedToVote = function (callback) {
     var self = this;
     Voter.find({group: {$lte: self.allowed_to_vote}}).exec(function (err, voters) {
         if (err) return callback(err);
-        self.allowed_to_vote_summary = Array(self.allowed_to_vote+1).fill(0);
+        var array = [];
+        for (var i = 0; i < self.allowed_to_vote+1; i++) {
+            array[i] = 0;
+        }
+        self.allowed_to_vote_summary = array;
         for (var it = 0; it < voters.length; it++) {
             self.allowed_to_vote_summary[voters[it].group]++;
         }
@@ -56,7 +60,11 @@ votingSchema.methods.setAllowedToVote = function (callback) {
 votingSchema.methods.setPresence = function (session, callback) {
     var self = this;
     if (self.state == 0) {
-        self.presence_summary = Array(self.allowed_to_vote+1).fill(0);
+        var array = [];
+        for (var i = 0; i < self.allowed_to_vote+1; i++) {
+            array[i] = 0;
+        }
+        self.presence_summary = array;
         for (var it = 0; it <= session.length; it++) {
             if (session.presence[it].group <= self.allowed_to_vote)
                 self.presence_summary[session.presence[it].group]++;

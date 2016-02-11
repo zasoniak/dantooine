@@ -63,7 +63,7 @@
         </div>
         <p>
             <span class="green">Głosowanie w trakcie.</span>
-            Zebrano <span data-id="votes-counter">30</span> spośród <span data-id="votes-all">52</span> głosów.
+            Zebrano <span data-id="votes-counter">0</span> spośród <span data-id="votes-all">X</span> głosów.
         </p>
         <div class="pure-form">
             <button data-action="cancel-voting" type="button" class="pure-button">Anuluj głosowanie</button>
@@ -118,6 +118,7 @@
             article = $(this).parent().parent();
             var question = article.find("h4").first().html();
             popup.find('h4').html(question);
+            $('[data-action="unlock-remotes"]').attr('disabled', false);
             console.log("Emitting prepare voting event...");
             socket.emit('prepare voting', {votingID: $(this).attr('data-voting')});
         });
@@ -132,6 +133,7 @@
         $('[data-action="unlock-remotes"]').on('click', function () {
             console.log("Emitting start voting event...");
             socket.emit('start voting');
+            $(this).attr('disabled', true);
         });
 
         $('[data-action="cancel-voting"]').on('click', function () {

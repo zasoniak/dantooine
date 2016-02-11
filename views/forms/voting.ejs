@@ -1,0 +1,92 @@
+<div id="popup-add-question" class="overlay">
+    <section class="popup">
+        <h3><%- title %></h3>
+        <form class="pure-form" method="<%- method %>" action="<%- action %>">
+            <%- hidden_field_tag('session_id', session.id) %>
+
+            <fieldset class="pure-group">
+                <textarea name="question" class="pure-input-1" placeholder="Pytanie" required></textarea>
+            </fieldset>
+
+            <fieldset>
+                <legend>Odpowiedzi</legend>
+                <input id="radio-yes-no" name="variants_type" type="radio" value="1" checked>
+                <label for="radio-yes-no" class="pure-radio">
+                    Tak/Nie
+                </label>
+
+                <input id="radio-multiple-yes-no" name="variants_type" type="radio" value="2">
+                <label for="radio-multiple-yes-no" class="pure-radio">
+                    Wielokrotnego wyboru
+                </label>
+
+                <div id="div-variants" style="display: none; clear: both">
+                    <input id="number-max-votes" name="max_allowed_variants" type="number" min="1">
+                    <label for="number-max-votes">
+                        Maksymalna liczba możliwych do oddania głosów
+                    </label>
+                    <div class="pure-group">
+                        <input type="text" name="variants" class="pure-input-1" placeholder="Odpowiedź">
+                    </div>
+                    <span id="variants-tip" class="tip">Wskazówka: po rozpoczęciu wpisywania pojawi się kolejne pole</span>
+                </div>
+            </fieldset>
+
+            <fieldset class="pure-control-group">
+                <legend>Głosujący</legend>
+                <div class="pure-u-1-2" style="float: left">
+                    <input id="radio-voters-all" name="allowed_to_vote" type="radio" value="4" checked>
+                    <label for="radio-voters-all" class="pure-radio">
+                        Wszyscy
+                    </label>
+
+                    <input id="radio-voters-privileged" name="allowed_to_vote" type="radio" value="2">
+                    <label for="radio-voters-privileged" class="pure-radio">
+                        Tylko pracownicy samodzielni
+                    </label>
+                </div>
+                <div class="pure-u-1-2" style="float: left">
+                    <input id="check-quorum" name="quorum" type="checkbox">
+                    <label for="check-quorum" class="pure-checkbox">
+                        Kworum
+                    </label>
+
+                    <input id="check-absolute-majority" name="absolute" type="checkbox">
+                    <label for="check-absolute-majority" class="pure-checkbox">
+                        Większość bezwzględna
+                    </label>
+                </div>
+                <div class="pure-u-1">
+                    <input id="check-additional-voters" name="additional_voters" type="checkbox">
+                    <label for="check-additional-voters" class="pure-checkbox">
+                        Dodatkowi głosujący
+                    </label>
+                    <div id="div-extra-voters"  style="display: none; clear: both">
+                        <span class="tip">Wskazówka: po rozpoczęciu wpisywania pojawi się kolejne pole</span>
+                        <div class="pure-u-1 extra-voter">
+                            <input type="text" name="additional_voters_title" class="pure-input-1-5" list="science-titles" placeholder="Tytuł">
+                            <datalist id="science-titles">
+                                <option>Prof. dr hab. inż.</option>
+                                <option>Prof. dr hab.</option>
+                                <option>Prof. nzw. dr hab. inż.</option>
+                                <option>Prof. nzw. dr hab.</option>
+                                <option>Dr hab. inż</option>
+                                <option>Dr hab.</option>
+                                <option>Dr inż.</option>
+                                <option>Dr</option>
+                            </datalist>
+                            <input type="text" name="additional_voters_name" class="pure-input-2-5" placeholder="Imię">
+                            <input type="text" name="additional_voters_surname" class="pure-input-2-5" placeholder="Nazwisko">
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+
+            <div class="action-bar">
+                <button type="button" id="button-cancel-add-question" class="pure-button">Anuluj</button>
+                <button type="reset" class="pure-button">Wyczyść</button>
+                <button type="submit" class="pure-button button-primary">Dodaj</button>
+            </div>
+        </form>
+    </section>
+</div>
