@@ -9,13 +9,14 @@
 
 var Bluetooth = require('../bluetooth/mockindex');
 var WebSocket = require('./websocket');
+var mongoose = require('mongoose');
 
 /**
  * Required import for database usage
  * @type {*|Session}
  */
 var SessionDataModel = require('../database').Session;
-/**
+/**2
  * Required import for database usage
  * @type {*|Voting}
  */
@@ -105,7 +106,7 @@ function SessionFacade(bluetoothController) {
         socket.on('revert voting', function(data) {
             if(data)
             {
-                self.revertVoting(data, function (error) {
+                self.revertVoting(data.votingID, function (error) {
                     if(error) socket.emit('session error', {message:error});
                 })
             }
@@ -332,7 +333,8 @@ SessionFacade.prototype.startVoting = function (callback) {
  */
 SessionFacade.prototype.revertVoting = function (votingID, callback) {
     var self = this;
-    VotingDataModel.findById(self.currentQuestion.id).exec(function (err, voting) {
+    //VotingDataModel.findOne({_id:mongoose.Types.ObjectId(votingID.toString())}).exec(function (err, voting) {
+    VotingDataModel.findById(votingID).exec(function (err, voting) {
         if (err) return callback(err);
         if(voting==null){
             var err = "Błędny identyfikator głosowania";
@@ -440,6 +442,39 @@ SessionFacade.prototype.endVoting = function (callback) {
                 if (err) return callback(err);
                 self.bluetoothController.endVoting(function (err) {
                     if (err) return callback(err);
+                    //console.log("CO JEST KURWA!");
+                    voting.answers = [
+                        {
+                            MAC: 'asdad',
+                            variantId: 0,
+                            value: 1,
+                            timestamp: 11
+                        },
+                        {
+                            MAC: 'asdasdqwe',
+                            variantId: 0,
+                            value: 2,
+                            timestamp: 11
+                        },
+                        {
+                            MAC: '123123adsasd',
+                            variantId: 0,
+                            value: 1,
+                            timestamp: 11
+                        },
+                        {
+                            MAC: '123123adsasd',
+                            variantId: 1,
+                            value: 1,
+                            timestamp: 11
+                        },
+                        {
+                            MAC: '123123adsasd',
+                            variantId: 2,
+                            value: 1,
+                            timestamp: 11
+                        }
+                    ];
                     self.webSocket.endVoting(voting);
                     return callback(null);
                 });

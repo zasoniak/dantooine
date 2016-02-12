@@ -27,6 +27,7 @@ WebSocket.prototype.nextSubquestion = function () {
 };
 
 WebSocket.prototype.endVoting = function (result) {
+    //console.log(result);
     io.emit('voting ended', {results: result});
 };
 

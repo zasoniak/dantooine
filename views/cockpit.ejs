@@ -52,9 +52,6 @@
         <h3 id="finished-votings">Głosowania zakończone</h3>
         <% for (var i=0; i<session.votings.length; i++) { var voting = session.votings[i]; if (voting.state == 2) { %>
         <article class="voting">
-            <div data-id="buttons-corner" class="right">
-                <button type="button" class="pure-button">Edytuj</button>
-            </div>
             <h4><%= session.votings[i].question %></h4>
             <% if (session.votings[i].type == 2) { %>
             <ol class="left">
@@ -65,11 +62,12 @@
             <% } else { %>
             <div class="tip">Głosowanie tak/nie</div>
             <% } %>
-            <div class="right" data-id="buttons-finished" style="display: none">
-                <button data-voting="<%= session.votings[i]._id %>" data-action="revert-voting" type="button" class="pure-button">Anuluj głosowanie</button>
+
+            <div class="right" data-id="buttons-finished" style="display: block">
+                <button data-voting="<%= voting._id %>" data-action="revert-voting" type="button" class="pure-button">Anuluj głosowanie</button>
             </div>
-            <div class="right" data-id="buttons-available" style="display: block">
-                <button data-voting="<%= session.votings[i]._id %>" data-action="prepare-voting" type="button" class="pure-button button-primary">Przygotuj głosowanie</button>
+            <div class="right" data-id="buttons-available" style="display: none">
+                <button data-voting="<%= voting._id %>" data-action="prepare-voting" type="button" class="pure-button button-primary">Przygotuj głosowanie</button>
             </div>
         </article>
         <% }} %>
@@ -149,7 +147,7 @@
         $('[data-action="revert-voting"]').on('click', function () {
             article = $(this).parent().parent();
             revertVotingBoxFromFinished();
-            console.log("Emitting revert voting event...");
+            console.log("Emitting revert voting event..."+ $(this).attr('data-voting'));
             socket.emit('revert voting', {votingID: $(this).attr('data-voting')});
         });
 

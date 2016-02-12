@@ -35,14 +35,23 @@ var Session = require('../database').Session;
 var fs = require('fs');
 var async = require('async');
 var archiver = require('archiver');
-var EasyZip = require('easy-zip').EasyZip;
 
 
-var getPresenceList = function (request, response) {
-    Voter.find().exec(function (err, voters) {
-        if (err) response.status(500).send('Something broke!');
-        var page = ejs.render(read(__dirname + '/views/presenceList.ejs', 'utf-8'), {voters: voters});
-        pdfGenerator(page, {pageSize: 'A4'}).pipe(response);
+var moment = require('moment');
+moment.locale('pl');
+
+
+var getPresenceList = function (sessionID, request, response) {
+    Session.findById(sessionID).exec(function (err, session) {
+        if (err)  response.status(500).send('Something broke!');
+        Voter.find().exec(function (err, voters) {
+            if (err) response.status(500).send('Something broke!');
+            var page = ejs.render(read(__dirname + '/views/presenceList.ejs', 'utf-8'), {
+                session: session,
+                voters: voters
+            });
+            pdfGenerator(page, {pageSize: 'A4'}).pipe(response);
+        });
     });
 };
 
@@ -59,30 +68,55 @@ var getAllVotingProtocols = function (sessionID, request, response) {
     Session.findById(sessionID).populate('votings').exec(function (err, session) {
         if (err) response.status(500).send('Something broke!');
         var page = null;
-        async.series([function (callback) {
-            async.each(session.votings, function (voting, callback2) {
-                page = ejs.render(read(__dirname + '/views/votingProtocol.ejs', 'utf-8'), {voting: voting});
-                pdfGenerator(page, {pageSize: 'A4'}).pipe(fs.createWriteStream(__dirname + '/tmp/' + voting.id + '.pdf'));
-                callback2(null);
-            }, function (err) {
-                if (err) response.status(500).send('Something broke!');
-                callback(err, null);
-            });
-        }, function (callback) {
-            var path = __dirname + "/tmp/";
-            //var archive = archiver('zip');
-            //archive.pipe(response);
-            //archive.bulk([
-            //    { expand: true, cwd: path, src: ['*.pdf'], dest: 'protokoly.pdf'}
-            //]);
-            //archive.finalize();
+        async.series([
+            function (callback) {
+                fs.readdir(__dirname + '/tmp', function (err, files) {
+                    if (err) callback(err);
+                    else {
+                        async.each(files, function (file, callback2) {
+                            fs.unlink(__dirname + '/tmp/' + file, function (err) {
+                                if (err) callback2(err);
+                                callback2(null);
+                            })
+                        }, function (err) {
+                            if (err) callback(err);
+                            callback(null);
+                        });
+                    }
+                });
+            },
+            function (callback) {
+                async.each(session.votings, function (voting, callback2) {
+                    page = ejs.render(read(__dirname + '/views/votingProtocol.ejs', 'utf-8'), {
+                        voting: voting,
+                        date: moment(session.date).format("LL"),
+                        supervisors: session.supervisors
+                    });
+                    var fileStream = fs.createWriteStream(__dirname + '/tmp/' + voting.id + '.pdf');
+                    pdfGenerator(page, {pageSize: 'A4'}).pipe(fileStream);
+                    fileStream.on('finish', function () {
+                        callback2(null);
+                    });
+                }, function (err) {
+                    if (err) response.status(500).send('Something broke!');
+                    callback(err, null);
+                });
+            }, function (callback) {
 
-            var zip = new EasyZip();
-            zip.zipFolder(path, function () {
-                zip.writeToResponse(response, 'protocoly');
+                response.writeHead(200, {
+                    'Content-Type': 'application/zip',
+                    'Content-disposition': 'attachment; filename=protokoly.zip'
+                });
+
+                var path = __dirname + "/tmp/";
+                var archive = archiver('zip');
+                archive.pipe(response);
+                archive.bulk([
+                    {expand: true, cwd: path, src: ['*.pdf'], dest: 'protokoly.pdf'}
+                ]);
+                archive.finalize();
                 callback(null);
-            });
-        }]);
+            }]);
 
     });
 };

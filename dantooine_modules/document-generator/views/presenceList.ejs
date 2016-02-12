@@ -19,6 +19,7 @@
     </thead>
     <tbody>
     <% for (var i=0; i<voters.length; i++) { %>
+    <%if(voters[i].group==1){%>
     <tr>
         <td><%= i+1 %></td>
         <th><%= voters[i].surname + ', ' + voters[i].name %></th>
@@ -27,8 +28,37 @@
         <td><%= voters[i].area_of_interests %></td>
         <td></td>
     </tr>
-    <% } %>
+    <% } } %>
     </tbody>
 </table>
+
+<table class="pure-table pure-table-horizontal dantooine-table">
+    <caption>Pracownicy niesamodzielni</caption>
+    <thead>
+    <tr>
+        <th>#</th>
+        <th>Nazwisko</th>
+        <th>Tytuł naukowy</th>
+        <th>Instytut</th>
+        <th>Dziedzina</th>
+        <th>Podpis</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% for (var i=0; i<voters.length; i++) { %>
+    <%if(voters[i].group==2){%>
+    <tr>
+        <td><%= i+1 %></td>
+        <th><%= voters[i].surname + ', ' + voters[i].name %></th>
+        <td><%= voters[i].title %></td>
+        <td><%= voters[i].faculty %></td>
+        <td><%= voters[i].area_of_interests %></td>
+        <td></td>
+    </tr>
+    <% } } %>
+    </tbody>
+</table>
+
+
 </body>
 </html>

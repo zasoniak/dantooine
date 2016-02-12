@@ -63,6 +63,7 @@
     });
     socket.on('votes updated', function (data) {
         console.log('Received votes updated event.');
+        console.log(data);
         updateVotesCounter(data.voted, data.all);
     });
 
@@ -134,18 +135,54 @@
     }
 
     function prepareResultsTable(results) {
-        var tr = resultsTableBody.find("tr").first().clone();
-        resultsTableBody.empty();
+        var newRow = resultsTableBody.find("tr").first().clone(true);
         var answers = results.answers;
-        for (var v = 0; v < results.variants.length; v++) {
-            var variant = results.variants[v];
-            var newRow = tr;
-            newRow.find('th').first().html(variant.content);
+        if (results.type == 2) {
+            for (var v = 0; v < results.variants.length; v++) {
+                var variant = results.variants[v];
+                newRow.find('th').first().html(variant.content);
+                // yes votes
+                var yesVotes = 0;
+                for (var a = 0; a < answers.length; a++) {
+                    var answer = answers[a];
+                    if (answer.variantId == variant.id && answer.value == 1) {
+                        yesVotes++;
+                    }
+                }
+                // no votes
+                var noVotes = 0;
+                for (var a = 0; a < answers.length; a++) {
+                    var answer = answers[a];
+                    if (answer.variantId == variant.id && answer.value == 2) {
+                        noVotes++;
+                    }
+                }
+                // refrain votes
+                var refrainVotes = 0;
+                for (var a = 0; a < answers.length; a++) {
+                    var answer = answers[a];
+                    if (answer.variantId == variant.id && answer.value == 3) {
+                        refrainVotes++;
+                    }
+                }
+                // put into table
+                console.log(newRow);
+                var cells = newRow.find('td');
+                console.log(cells);
+                cells.eq(0).html(yesVotes);
+                cells.eq(1).html(noVotes);
+                cells.eq(2).html(refrainVotes);
+                // add row to table
+                resultsTableBody.append(newRow);
+            }
+        }
+        else if (results.type == 1) {
+            newRow.find('th').first().html(results.question);
             // yes votes
             var yesVotes = 0;
             for (var a = 0; a < answers.length; a++) {
                 var answer = answers[a];
-                if (answer.variantId == variant.id && answer.value == 1) {
+                if (answer.value == 1) {
                     yesVotes++;
                 }
             }
@@ -153,7 +190,7 @@
             var noVotes = 0;
             for (var a = 0; a < answers.length; a++) {
                 var answer = answers[a];
-                if (answer.variantId == variant.id && answer.value == 2) {
+                if (answer.value == 2) {
                     noVotes++;
                 }
             }
@@ -161,26 +198,30 @@
             var refrainVotes = 0;
             for (var a = 0; a < answers.length; a++) {
                 var answer = answers[a];
-                if (answer.variantId == variant.id && answer.value == 3) {
+                if (answer.value == 3) {
                     refrainVotes++;
                 }
             }
             // put into table
-            var cells = newRow.children('td');
-            cells[0].html(yesVotes);
-            cells[1].html(noVotes);
-            cells[2].html(refrainVotes);
+            console.log(newRow);
+            var cells = newRow.find('td');
+            console.log(cells);
+            cells.eq(0).html(yesVotes);
+            cells.eq(1).html(noVotes);
+            cells.eq(2).html(refrainVotes);
             // add row to table
             resultsTableBody.append(newRow);
         }
+        // resultsTableBody.find('tr').first().remove();
     }
 
     function showResults(results) {
+        console.log(results);
         changeTimeIndicatorToResult();
         variantsDiv.hide();
         prepareResultsTable(results);
         resultsDiv.show();
-        console.log("Results done!");
+
     }
 </script>
 </body>

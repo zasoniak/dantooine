@@ -7,23 +7,30 @@
 <h1 align="center">PROTOKÓŁ</h1>
 <p align="center"><strong>Komisji Skrutacyjnej</strong></p>
 <p align="center">z tajnego głosowania Rady Wydziału Mechatroniki Politechniki Warszawskiej</p>
-<p>w dniu ...............................</p>
+<p>w dniu:  <%= date%></p>
 
-<p>w sprawie: <b></b></p>
-<p>Na ................... uprawnionych do głosowania, w tym:<br/> ......................... członków Rady Wydziału,<br/> ......................... promotora/ów z zewnątrz,<br/> ......................... recenzenta/ów z zewnątrz,</p>
-<p>obecnych było ............... osób, w tym:<br/> ......................... członków Rady Wydziału,<br/> ......................... promotora/ów z zewnątrz,<br/> ......................... recenzenta/ów z zewnątrz,</p>
+<p>w sprawie:  <b><%=voting.question%> </b></p>
+<% var allowed =0; %>
+<% for(var i=0; i<voting.allowed_to_vote_summary.length;i++) {%>
+<% allowed+=voting.allowed_to_vote_summary[i]; }%>
+<% var present =0; %>
+<% for(var i=0; i<voting.presence_summary.length;i++) {%>
+<% present+=voting.presence_summary[i]; }%>
+<p>Na <%=allowed%> uprawnionych do głosowania, w tym:<br/> ......................... członków Rady Wydziału,<br/> ......................... promotora/ów z zewnątrz,<br/> ......................... recenzenta/ów z zewnątrz,</p>
+<p>obecnych było <%=present%> osób, w tym:<br/> ......................... członków Rady Wydziału,<br/> ......................... promotora/ów z zewnątrz,<br/> ......................... recenzenta/ów z zewnątrz,</p>
 <p>W głosowaniu udział wzięło ..................... osób uprawnionych.</p>
 <p>W tej liczbie było:<br/> za wnioskiem ......osób,<br/> wstrzymało się od głosowania ......osób,<br/> przeciw wnioskowi ......osób.</p>
-<p></p>
-<p></p>
-<p>Przewodniczący Komisji . <br/>  / imię i nazwisko / / podpis /</p>
-<p></p>
-<p></p>
-<p>Członkowie Komisji  . <br/>  / imię i nazwisko / / podpis /</p>
-<p></p>
-<p></p>
-<p>  . <br/>  / imię i nazwisko / / podpis /</p>
-<p></p>
+</br></br></br></br>
+
+
+<% for (var i=0; i<supervisors.length; i++) { %>
+<p> <i><%=supervisors[i].role%> </i>        <%=supervisors[i].name + " " + supervisors[i].surname%>
+</p></br>
+<p>
+    <i>Podpis</i>
+</p>
+</br></br>
+<% } %>
 </body>
 </html>
 
