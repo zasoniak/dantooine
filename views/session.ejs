@@ -38,18 +38,24 @@
 </section>
 <section>
     <h3>Głosowania</h3>
-    <ol class="voting-list">
-        <% for (var i=0; i<session.votings.length; i++) { %>
-        <li>
-            <p><%= session.votings[i].question %></p>
-            <ol>
-                <% for (var j=0; j < session.votings[i].variants.length; j++) { %>
-                <li><%= session.votings[i].variants[j].content %></li>
-                <% } %>
-            </ol>
-        </li>
+    <% for (var i=0; i<session.votings.length; i++) { var voting = session.votings[i]; %>
+    <article class="voting">
+        <div data-id="buttons-corner" class="right">
+            <button data-action="edit-voting" data-voting="<%= voting._id %>" type="button" class="pure-button">Edytuj</button>
+            <button data-action="delete-voting" data-voting="<%= voting._id %>"type="button" class="pure-button">Usuń</button>
+        </div>
+        <h4><%= voting.question %></h4>
+        <% if (voting.type == 2) { %>
+        <ol class="left">
+            <% for (var j=0; j < voting.variants.length; j++) { %>
+            <li><%= voting.variants[j].content %></li>
+            <% } %>
+        </ol>
+        <% } else { %>
+        <div class="tip">Głosowanie tak/nie</div>
         <% } %>
-    </ol>
+    </article>
+    <% } %>
 </section>
 <section>
     <h3>Komisja Skrutacyjna</h3>
@@ -189,6 +195,73 @@
             url:$(this).attr('data-url')
         });
         location.reload();
+    });
+
+    $('[data-action="edit-voting"]').on('click', function () {
+        console.log("Edit voting...");
+        $.ajax({
+            type: 'POST',
+            url: '/forms/voting/'+$(this).attr('data-voting'),
+            success: function (response, status) {
+                $('footer').before(response);
+                setTimeout(function(){
+                    $('#popup-add-question').addClass('active');
+                }, 50);
+
+                $('#button-cancel-add-question').on('click', function(){
+                    $('#popup-add-question').removeClass('active');
+                    setTimeout(function(){
+                        $('#popup-add-question').remove();
+                    }, 1000);
+                });
+
+                var div_variants = $('#div-variants');
+                var div_variants_inputs = div_variants.children('div').last();
+                var div_voters = $('#div-extra-voters');
+                var div_voters_inputs = $('.extra-voter').first();
+
+                div_variants.children('.pure-group').children().last().one('input', addVariantInput);
+
+                $('form input:radio[name=variants_type]').on('change', function () {
+                    if ($(this).val() == "2" && this.checked) {
+                        div_variants.show();
+                    } else {
+                        div_variants.hide();
+                    }
+                });
+
+                $('#check-absolute-majority').on('change', function () {
+                    var checkbox = $('#check-quorum');
+                    if (this.checked) {
+                        checkbox.prop('checked', true);
+                    }
+                    else {
+                        checkbox.prop('checked', false);
+                    }
+                });
+
+                $('#check-additional-voters').on('change', function () {
+                    console.log("Votersi!");
+                    if (this.checked) {
+                        div_voters.show();
+                    } else {
+                        div_voters.hide();
+                    }
+                });
+
+                div_voters_inputs.one('input', addVotersInputs);
+
+                function addVariantInput() {
+                    $('<input type="text" name="variants" class="pure-input-1" placeholder="Odpowiedź">').appendTo(div_variants_inputs).one('input', addVariantInput);
+                }
+
+                function addVotersInputs() {
+                    div_voters_inputs.clone().appendTo(div_voters).one('input', addVotersInputs).children().each(function () {
+                        $(this).val('');
+                    });
+                }
+            }
+        });
     });
 
     function startSession() {

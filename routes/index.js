@@ -11,21 +11,21 @@ moment.locale('pl');
 module.exports = function(passport)
 {
     /* FORMS */
-    router.post('/forms/voting', isAjax, function (request, response, next) {
-        var Session = require('../dantooine_modules/database').Session;
-        Session.findById(request.body.sessionID, function (err, session) {
-            if (err) errorHandler(err);
-            response.render('forms/voting', {session: session, title: "Dodaj głosowanie", method: 'post', action: '/voting'});
-        });
-    });
-
-    /* FORMS */
     router.post('/forms/voting/:id', isAjax, function (request, response, next) {
         var id = request.params.id;
         var Voting = require('../dantooine_modules/database').Voting;
         Voting.findById(id, function (err, voting) {
             if (err) errorHandler(err);
-            response.render('forms/voting', {session: null, title: "Edytuj głosowanie", method: 'put', action: '/voting/'+id, voting: voting});
+            response.render('forms/votingEdit', {session: null, title: "Edytuj głosowanie", method: 'put', action: '/voting/'+id, voting: voting});
+        });
+    });
+
+    /* FORMS */
+    router.post('/forms/voting', isAjax, function (request, response, next) {
+        var Session = require('../dantooine_modules/database').Session;
+        Session.findById(request.body.sessionID, function (err, session) {
+            if (err) errorHandler(err);
+            response.render('forms/voting', {session: session, title: "Dodaj głosowanie", method: 'post', action: '/voting'});
         });
     });
 

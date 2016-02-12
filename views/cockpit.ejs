@@ -26,7 +26,31 @@
     <!--GŁOSOWANIA-->
     <section>
         <h3 id="available-votings">Głosowania nierozpoczęte</h3>
-        <% for (var i=0; i<session.votings.length; i++) { %>
+        <% for (var i=0; i<session.votings.length; i++) { var voting = session.votings[i]; if (voting.state != 2) { %>
+        <article class="voting">
+            <div data-id="buttons-corner" class="right">
+                <button type="button" class="pure-button">Edytuj</button>
+            </div>
+            <h4><%= voting.question %></h4>
+            <% if (voting.type == 2) { %>
+            <ol class="left">
+                <% for (var j=0; j < voting.variants.length; j++) { %>
+                <li><%= voting.variants[j].content %></li>
+                <% } %>
+            </ol>
+            <% } else { %>
+            <div class="tip">Głosowanie tak/nie</div>
+            <% } %>
+            <div class="right" data-id="buttons-finished" style="display: none">
+                <button data-voting="<%= voting._id %>" data-action="revert-voting" type="button" class="pure-button">Anuluj głosowanie</button>
+            </div>
+            <div class="right" data-id="buttons-available" style="display: block">
+                <button data-voting="<%= voting._id %>" data-action="prepare-voting" type="button" class="pure-button button-primary">Przygotuj głosowanie</button>
+            </div>
+        </article>
+        <% }} %>
+        <h3 id="finished-votings">Głosowania zakończone</h3>
+        <% for (var i=0; i<session.votings.length; i++) { var voting = session.votings[i]; if (voting.state == 2) { %>
         <article class="voting">
             <div data-id="buttons-corner" class="right">
                 <button type="button" class="pure-button">Edytuj</button>
@@ -48,8 +72,7 @@
                 <button data-voting="<%= session.votings[i]._id %>" data-action="prepare-voting" type="button" class="pure-button button-primary">Przygotuj głosowanie</button>
             </div>
         </article>
-        <% } %>
-        <h3 id="finished-votings">Głosowania zakończone</h3>
+        <% }} %>
     </section>
 </div>
 <!--POPUP GŁOSOWANIA-->

@@ -139,7 +139,7 @@
         var answers = results.answers;
         for (var v = 0; v < results.variants.length; v++) {
             var variant = results.variants[v];
-            var newRow = tr.clone();
+            var newRow = tr;
             newRow.find('th').first().html(variant.content);
             // yes votes
             var yesVotes = 0;
