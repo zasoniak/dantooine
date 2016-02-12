@@ -37,23 +37,23 @@
             <fieldset class="pure-control-group">
                 <legend>Głosujący</legend>
                 <div class="pure-u-1-2" style="float: left">
-                    <input id="radio-voters-all" name="allowed_to_vote" type="radio" value="4" checked>
+                    <input id="radio-voters-all" name="allowed_to_vote" type="radio" value="4" <% if (voting.allowed_to_vote == 4) { %>checked<% } %>>
                     <label for="radio-voters-all" class="pure-radio">
                         Wszyscy
                     </label>
 
-                    <input id="radio-voters-privileged" name="allowed_to_vote" type="radio" value="2">
+                    <input id="radio-voters-privileged" name="allowed_to_vote" type="radio" value="2" <% if (voting.allowed_to_vote == 2) { %>checked<% } %>>
                     <label for="radio-voters-privileged" class="pure-radio">
                         Tylko pracownicy samodzielni
                     </label>
                 </div>
                 <div class="pure-u-1-2" style="float: left">
-                    <input id="check-quorum" name="quorum" type="checkbox">
+                    <input id="check-quorum" name="quorum" type="checkbox" <% if (voting.quorum == true) { %>checked<% } %>>
                     <label for="check-quorum" class="pure-checkbox">
                         Kworum
                     </label>
 
-                    <input id="check-absolute-majority" name="absolute" type="checkbox">
+                    <input id="check-absolute-majority" name="absolute" type="checkbox" <% if (voting.absolute_majority == true) { %>checked<% } %>>
                     <label for="check-absolute-majority" class="pure-checkbox">
                         Większość bezwzględna
                     </label>
@@ -86,8 +86,7 @@
 
             <div class="action-bar">
                 <button type="button" id="button-cancel-add-question" class="pure-button">Anuluj</button>
-                <button type="reset" class="pure-button">Wyczyść</button>
-                <button type="submit" class="pure-button button-primary">Dodaj</button>
+                <button type="submit" class="pure-button button-primary">Zapisz zmiany</button>
             </div>
         </form>
     </section>

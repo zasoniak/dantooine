@@ -24,8 +24,8 @@
         <div class="green">Zebrano <span data-id="votes-counter">0</span> spośród <span data-id="votes-all">X</span> głosów</div>
     </article>
 </div>
-<div class="content" id="results" style="display: none;">
-    <table class="pure-table">
+<div class="content" id="results" style="display: none; padding: 0;">
+    <table class="pure-table dantooine-table voting-results-table" style="margin: 0;">
         <thead>
             <tr>
                 <th>Odpowiedź</th><th>TAK</th><th>NIE</th><th>WSTM</th>
@@ -34,7 +34,9 @@
         <tbody>
             <tr>
                 <th>Wariant</th>
-                <td>TAK</td><td>NIE</td><td>WSTM</td>
+                <td style="font-size: 44pt; line-height: 44pt">TAK</td>
+                <td style="font-size: 44pt; line-height: 44pt">NIE</td>
+                <td style="font-size: 44pt; line-height: 44pt">WSTM</td>
             </tr>
         </tbody>
     </table>
@@ -70,6 +72,7 @@
     var article = $('article').first().clone();
 
     var countdown = 60;
+    var interval;
     var votingCounter = 0;
     var result = false;
     var resultsDiv = $('#results');
@@ -77,6 +80,7 @@
     var variantsDiv = $('#variants');
 
     function changeTimeIndicatorToResult() {
+        clearInterval(interval);
         $('#timer').removeClass('green').html('Wyniki');
     }
 
@@ -94,9 +98,16 @@
         current.find('[data-id="votes-all"]').first().html(all);
     }
 
+    function hideResultsAndShowVariants() {
+        setTimer(60);
+        resultsDiv.hide();
+        variantsDiv.show();
+    }
+
     function newQuestion(voting) {
         $('#variants').empty();
         $('#question').html(voting.question);
+        hideResultsAndShowVariants();
         if (voting.type == 1) {
             article.find('.answer').first().html("TAK / NIE");
             nextSubvariant();
@@ -111,7 +122,7 @@
     }
 
     function startCountdown() {
-        var interval = setInterval(function() {
+        interval = setInterval(function() {
             setTimer(--countdown)
 
             if (countdown <= 0)
@@ -135,10 +146,14 @@
     }
 
     function prepareResultsTable(results) {
-        var newRow = resultsTableBody.find("tr").first().clone(true);
+        var tempRow = resultsTableBody.find("tr").first().clone(true);
+        resultsTableBody.empty();
+        resultsTableBody.append(tempRow);
+        var newRow;
         var answers = results.answers;
         if (results.type == 2) {
             for (var v = 0; v < results.variants.length; v++) {
+                newRow = resultsTableBody.find("tr").first().clone(true);
                 var variant = results.variants[v];
                 newRow.find('th').first().html(variant.content);
                 // yes votes
@@ -166,9 +181,7 @@
                     }
                 }
                 // put into table
-                console.log(newRow);
                 var cells = newRow.find('td');
-                console.log(cells);
                 cells.eq(0).html(yesVotes);
                 cells.eq(1).html(noVotes);
                 cells.eq(2).html(refrainVotes);
@@ -177,12 +190,13 @@
             }
         }
         else if (results.type == 1) {
+            newRow = resultsTableBody.find("tr").first().clone(true);
             newRow.find('th').first().html(results.question);
             // yes votes
             var yesVotes = 0;
             for (var a = 0; a < answers.length; a++) {
                 var answer = answers[a];
-                if (answer.value == 1) {
+                if (answer.variantId == 0 && answer.value == 1) {
                     yesVotes++;
                 }
             }
@@ -190,7 +204,7 @@
             var noVotes = 0;
             for (var a = 0; a < answers.length; a++) {
                 var answer = answers[a];
-                if (answer.value == 2) {
+                if (answer.variantId == 0 && answer.value == 2) {
                     noVotes++;
                 }
             }
@@ -198,21 +212,19 @@
             var refrainVotes = 0;
             for (var a = 0; a < answers.length; a++) {
                 var answer = answers[a];
-                if (answer.value == 3) {
+                if (answer.variantId == 0 && answer.value == 3) {
                     refrainVotes++;
                 }
             }
             // put into table
-            console.log(newRow);
             var cells = newRow.find('td');
-            console.log(cells);
             cells.eq(0).html(yesVotes);
             cells.eq(1).html(noVotes);
             cells.eq(2).html(refrainVotes);
             // add row to table
             resultsTableBody.append(newRow);
         }
-        // resultsTableBody.find('tr').first().remove();
+        tempRow.remove();
     }
 
     function showResults(results) {
@@ -221,7 +233,6 @@
         variantsDiv.hide();
         prepareResultsTable(results);
         resultsDiv.show();
-
     }
 </script>
 </body>

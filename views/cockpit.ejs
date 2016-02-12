@@ -29,7 +29,7 @@
         <% for (var i=0; i<session.votings.length; i++) { var voting = session.votings[i]; if (voting.state != 2) { %>
         <article class="voting">
             <div data-id="buttons-corner" class="right">
-                <button type="button" class="pure-button">Edytuj</button>
+                <button data-voting="<%= voting._id %>" data-action="edit-voting" type="button" class="pure-button">Edytuj</button>
             </div>
             <h4><%= voting.question %></h4>
             <% if (voting.type == 2) { %>
@@ -41,10 +41,10 @@
             <% } else { %>
             <div class="tip">Głosowanie tak/nie</div>
             <% } %>
-            <div class="right" data-id="buttons-finished" style="display: none">
+            <div class="right" data-id="buttons-finished" style="display: none; clear: both">
                 <button data-voting="<%= voting._id %>" data-action="revert-voting" type="button" class="pure-button">Anuluj głosowanie</button>
             </div>
-            <div class="right" data-id="buttons-available" style="display: block">
+            <div class="right" data-id="buttons-available" style="display: block; clear: both">
                 <button data-voting="<%= voting._id %>" data-action="prepare-voting" type="button" class="pure-button button-primary">Przygotuj głosowanie</button>
             </div>
         </article>
@@ -52,6 +52,9 @@
         <h3 id="finished-votings">Głosowania zakończone</h3>
         <% for (var i=0; i<session.votings.length; i++) { var voting = session.votings[i]; if (voting.state == 2) { %>
         <article class="voting">
+            <div data-id="buttons-corner" class="right" style="display: none;">
+                <button data-voting="<%= voting._id %>" data-action="edit-voting" type="button" class="pure-button">Edytuj</button>
+            </div>
             <h4><%= session.votings[i].question %></h4>
             <% if (session.votings[i].type == 2) { %>
             <ol class="left">
@@ -63,10 +66,10 @@
             <div class="tip">Głosowanie tak/nie</div>
             <% } %>
 
-            <div class="right" data-id="buttons-finished" style="display: block">
+            <div class="right" data-id="buttons-finished" style="display: block; clear: both">
                 <button data-voting="<%= voting._id %>" data-action="revert-voting" type="button" class="pure-button">Anuluj głosowanie</button>
             </div>
-            <div class="right" data-id="buttons-available" style="display: none">
+            <div class="right" data-id="buttons-available" style="display: none; clear: both">
                 <button data-voting="<%= voting._id %>" data-action="prepare-voting" type="button" class="pure-button button-primary">Przygotuj głosowanie</button>
             </div>
         </article>
@@ -142,6 +145,73 @@
             $('[data-action="unlock-remotes"]').attr('disabled', false);
             console.log("Emitting prepare voting event...");
             socket.emit('prepare voting', {votingID: $(this).attr('data-voting')});
+        });
+
+        $('[data-action="edit-voting"]').on('click', function () {
+            console.log("Edit voting...");
+            $.ajax({
+                type: 'POST',
+                url: '/forms/voting/'+$(this).attr('data-voting'),
+                success: function (response, status) {
+                    $('footer').before(response);
+                    setTimeout(function(){
+                        $('#popup-add-question').addClass('active');
+                    }, 50);
+
+                    $('#button-cancel-add-question').on('click', function(){
+                        $('#popup-add-question').removeClass('active');
+                        setTimeout(function(){
+                            $('#popup-add-question').remove();
+                        }, 1000);
+                    });
+
+                    var div_variants = $('#div-variants');
+                    var div_variants_inputs = div_variants.children('div').last();
+                    var div_voters = $('#div-extra-voters');
+                    var div_voters_inputs = $('.extra-voter').first();
+
+                    div_variants.children('.pure-group').children().last().one('input', addVariantInput);
+
+                    $('form input:radio[name=variants_type]').on('change', function () {
+                        if ($(this).val() == "2" && this.checked) {
+                            div_variants.show();
+                        } else {
+                            div_variants.hide();
+                        }
+                    });
+
+                    $('#check-absolute-majority').on('change', function () {
+                        var checkbox = $('#check-quorum');
+                        if (this.checked) {
+                            checkbox.prop('checked', true);
+                        }
+                        else {
+                            checkbox.prop('checked', false);
+                        }
+                    });
+
+                    $('#check-additional-voters').on('change', function () {
+                        console.log("Votersi!");
+                        if (this.checked) {
+                            div_voters.show();
+                        } else {
+                            div_voters.hide();
+                        }
+                    });
+
+                    div_voters_inputs.one('input', addVotersInputs);
+
+                    function addVariantInput() {
+                        $('<input type="text" name="variants" class="pure-input-1" placeholder="Odpowiedź">').appendTo(div_variants_inputs).one('input', addVariantInput);
+                    }
+
+                    function addVotersInputs() {
+                        div_voters_inputs.clone().appendTo(div_voters).one('input', addVotersInputs).children().each(function () {
+                            $(this).val('');
+                        });
+                    }
+                }
+            });
         });
 
         $('[data-action="revert-voting"]').on('click', function () {

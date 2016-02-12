@@ -42,7 +42,7 @@
     <article class="voting">
         <div data-id="buttons-corner" class="right">
             <button data-action="edit-voting" data-voting="<%= voting._id %>" type="button" class="pure-button">Edytuj</button>
-            <button data-action="delete-voting" data-voting="<%= voting._id %>"type="button" class="pure-button">Usuń</button>
+            <button data-action="delete-voting" data-voting="<%= voting._id %>"type="button" class="pure-button button-red">Usuń</button>
         </div>
         <h4><%= voting.question %></h4>
         <% if (voting.type == 2) { %>
@@ -76,8 +76,8 @@
                 <th><%= session.supervisors[i].name + ' ' + session.supervisors[i].surname %></th>
                 <td><%= session.supervisors[i].role %></td>
                 <td class="cell-action">
-                    <button type="button" data-url="/session/<%= session.id %>/supervisor/<%= session.supervisors[i].id %>" data-method="delete"
-                            class="pure-button button-delete button-red">Usuń
+                    <button type="button" data-action="delete-supervisor" data-url="/session/<%= session.id %>/supervisor/<%= session.supervisors[i].id %>" data-method="delete"
+                            class="pure-button button-red">Usuń
                     </button>
                 </td>
             </tr>
@@ -189,12 +189,24 @@
 
     $('#button-start-session').on('click', startSession);
 
-    $('button.button-delete').on('click', function (e) {
+    $('[data-action="delete-supervisor"]').on('click', function (e) {
         $.ajax({
             type:'delete',
-            url:$(this).attr('data-url')
+            url:$(this).attr('data-url'),
+            complete: function () {
+                location.reload();
+            }
         });
-        location.reload();
+    });
+
+    $('[data-action="delete-voting"]').on('click', function (e) {
+        $.ajax({
+            type:'delete',
+            url:'/session/<%- session.id %>/voting/'+$(this).attr('data-voting'),
+            complete: function () {
+                location.reload();
+            }
+        });
     });
 
     $('[data-action="edit-voting"]').on('click', function () {

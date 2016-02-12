@@ -16,7 +16,7 @@ module.exports = function(passport)
         var Voting = require('../dantooine_modules/database').Voting;
         Voting.findById(id, function (err, voting) {
             if (err) errorHandler(err);
-            response.render('forms/votingEdit', {session: null, title: "Edytuj głosowanie", method: 'put', action: '/voting/'+id, voting: voting});
+            response.render('forms/votingEdit', {session: null, title: "Edytuj głosowanie", method: 'post', action: '/voting/'+id, voting: voting});
         });
     });
 
@@ -57,6 +57,49 @@ module.exports = function(passport)
         {
             if(err) errorHandler(err);
             response.redirect('/session/'+session.id);
+        });
+    });
+
+    /* EDIT session voting ajax request */
+    router.post('/voting/:id', function (request, response, next) {
+        // prepare things
+        var variants = [];
+        var voters = [];
+        for(var i=0; i<request.body.variants.length; i++)
+        {
+            if (request.body.variants[i] != '') {
+                variants[i]={
+                    id: i,
+                    content: request.body.variants[i]
+                };
+            }
+        }
+        for(var j=0; j<request.body.additional_voters_title.length; j++)
+        {
+            if (request.body.additional_voters_title[i] != '') {
+                voters[i]={
+                    title: request.body.additional_voters_title[i],
+                    name: request.body.additional_voters_name[i],
+                    surname: request.body.additional_voters_surname[i]
+                };
+            }
+        }
+        // save things
+        var Voting = require('../dantooine_modules/database').Voting;
+        Voting.findByIdAndUpdate(request.params.id,
+            {
+                type: request.body.variants_type,
+                question: request.body.question,
+                max_answers_number: request.body.max_allowed_variants,
+                variants: (request.body.variants_type == 2) ? variants : [],
+                allowed_to_vote: request.body.allowed_to_vote,
+                extra_voters: (request.body.additional_voters === "on") ? voters : [],
+                quorum: (request.body.quorum === "on"),
+                absolute_majority: (request.body.absolute === "on")
+            }).exec(function (err, voting) {
+                var session_id = voting._session.toString();
+                request.flash('message', 'Pomyślnie edytowano głosowanie');
+                response.redirect('back');
         });
     });
 
@@ -112,45 +155,21 @@ module.exports = function(passport)
         });
     });
 
-    /* EDIT session voting ajax request */
-    router.put('/voting/:id', isAjax, function (request, response, next) {
-        // prepare things
-        var variants = [];
-        var voters = [];
-        for(var i=0; i<request.body.variants.length; i++)
-        {
-            if (request.body.variants[i] != '') {
-                variants[i]={
-                    id: i,
-                    content: request.body.variants[i]
-                };
-            }
-        }
-        for(var j=0; j<request.body.additional_voters_title.length; j++)
-        {
-            if (request.body.additional_voters_title[i] != '') {
-                voters[i]={
-                    title: request.body.additional_voters_title[i],
-                    name: request.body.additional_voters_name[i],
-                    surname: request.body.additional_voters_surname[i]
-                };
-            }
-        }
-        // save things
-        var Voting = require('../dantooine_modules/database').Voting;
-        Voting.findByIdAndUpdate(request.param.id,
-            {
-                type: request.body.variants_type,
-                question: request.body.question,
-                max_answers_number: request.body.max_allowed_variants,
-                variants: (request.body.variants_type == 2) ? variants : [],
-                allowed_to_vote: request.body.allowed_to_vote,
-                extra_voters: (request.body.additional_voters === "on") ? voters : [],
-                quorum: (request.body.quorum === "on"),
-                absolute_majority: (request.body.absolute === "on")
-            }).exec();
-        request.flash('message', 'Pomyślnie edytowano głosowanie');
-        response.sendStatus(204);
+    /* DELETE session voting ajax request */
+    router.delete('/session/:session/voting/:id', isAjax, function (request, response, next) {
+        // delete things
+        var Session = require('../dantooine_modules/database').Session;
+        Session.findById(request.params.session, function (err, session) {
+            if (err) errorHandler(err);
+            session.votings.pull(request.params.id);
+            session.save(function (err) {
+                if (err) errorHandler(err);
+                var Voting = require('../dantooine_modules/database').Voting;
+                Voting.findByIdAndRemove(request.params.id).exec();
+                request.flash('message', 'Pomyślnie usunięto głosowanie');
+                response.sendStatus(204);
+            });
+        });
     });
 
     /* GET home page. */

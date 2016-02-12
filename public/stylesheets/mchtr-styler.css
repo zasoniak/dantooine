@@ -240,6 +240,14 @@ img.filetype {
     visibility: visible;
 }
 
+.voting-results-table {
+    font-size: x-large;
+}
+
+.voting-results-table th, .voting-results-table td {
+    padding: 8pt 12pt;
+}
+
 .even-layout {
     table-layout: fixed;
 }
