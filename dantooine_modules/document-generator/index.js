@@ -48,7 +48,8 @@ var getPresenceList = function (sessionID, request, response) {
             if (err) response.status(500).send('Something broke!');
             var page = ejs.render(read(__dirname + '/views/presenceList.ejs', 'utf-8'), {
                 session: session,
-                voters: voters
+                voters: voters,
+                date: moment(session.date).format("LL")
             });
             pdfGenerator(page, {pageSize: 'A4'}).pipe(response);
         });
@@ -65,7 +66,7 @@ var getVotingProtocol = function (votingID, request, response) {
 };
 
 var getAllVotingProtocols = function (sessionID, request, response) {
-    Session.findById(sessionID).populate('votings').exec(function (err, session) {
+    Session.findById(sessionID).populate('votings presence').exec(function (err, session) {
         if (err) response.status(500).send('Something broke!');
         var page = null;
         async.series([

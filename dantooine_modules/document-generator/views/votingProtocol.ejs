@@ -12,14 +12,21 @@
 <p>w sprawie:  <b><%=voting.question%> </b></p>
 <% var allowed =0; %>
 <% for(var i=0; i<voting.allowed_to_vote_summary.length;i++) {%>
-<% allowed+=voting.allowed_to_vote_summary[i]; }%>
+<% allowed+=voting.allowed_to_vote_summary[i]+voting.extra_voters.length; }%>
 <% var present =0; %>
 <% for(var i=0; i<voting.presence_summary.length;i++) {%>
 <% present+=voting.presence_summary[i]; }%>
-<p>Na <%=allowed%> uprawnionych do głosowania, w tym:<br/> ......................... członków Rady Wydziału,<br/> ......................... promotora/ów z zewnątrz,<br/> ......................... recenzenta/ów z zewnątrz,</p>
-<p>obecnych było <%=present%> osób, w tym:<br/> ......................... członków Rady Wydziału,<br/> ......................... promotora/ów z zewnątrz,<br/> ......................... recenzenta/ów z zewnątrz,</p>
-<p>W głosowaniu udział wzięło ..................... osób uprawnionych.</p>
-<p>W tej liczbie było:<br/> za wnioskiem ......osób,<br/> wstrzymało się od głosowania ......osób,<br/> przeciw wnioskowi ......osób.</p>
+<% var present_all =present; %>
+<% for(var i=0; i<voting.extra_voters.length;i++) {%>
+<% if(voting.extra_voters[i].present) present_all++; }%>
+<p>Na <%=allowed%> uprawnionych do głosowania, w tym:<br/>  <%=present%> członków Rady Wydziału,<br/> <%=voting.extra_voters.length%> promotora/ów z zewnątrz,<br/>
+<p>obecnych było <%=present_all%> osób, w tym:<br/> <%=present%> członków Rady Wydziału,<br/> <%=present_all-present%> promotora/ów z zewnątrz,<br/>
+    <% var voted_true =0; %>
+    <% var voted_false =0; %>
+    <% var voted_nop =0; %>
+<%  for(var i=0; i<voting.answers.length;i++) {if(voting.answers[i].value==1) voted_true++;  else if(voting.answers[i].value==2) voted_false++; else if(voting.answers[i].value==3) voted_nop++; }%>
+<p>W głosowaniu udział wzięło  <%=voting.answers.length%> osób uprawnionych.</p>
+<p>W tej liczbie było:<br/> za wnioskiem <%=voted_true%> osób,<br/> wstrzymało się od głosowania <%=voted_nop%>  osób,<br/> przeciw wnioskowi <%=voted_false%>  osób.</p>
 </br></br></br></br>
 
 

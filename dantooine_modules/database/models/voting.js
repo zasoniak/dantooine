@@ -65,7 +65,7 @@ votingSchema.methods.setPresence = function (session, callback) {
             array[i] = 0;
         }
         self.presence_summary = array;
-        for (var it = 0; it <= session.length; it++) {
+        for (var it = 0; it < session.presence.length; it++) {
             if (session.presence[it].group <= self.allowed_to_vote)
                 self.presence_summary[session.presence[it].group]++;
         }

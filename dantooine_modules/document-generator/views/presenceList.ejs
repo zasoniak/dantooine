@@ -1,12 +1,32 @@
-<html>
+﻿<html>
 <head>
     <link rel="stylesheet" href="../../../public/stylesheets/mchtr-styler.css">
+    <link rel="stylesheet" href="../../../public/stylesheets/pure-min.css">
+    <style>
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        table {
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+        h1,h2 {
+            text-align: center;
+        }
+
+    </style>
 </head>
 <body>
 <h1>Posiedzenie Rady Wydziału</h1>
-<h2>Sesja</h2>
+<h2>Sesja <b><%=session.description%></b></h2>
+<h2>Dnia: <%=date%></h2>
+<div class="content" id="results">
 <table class="pure-table pure-table-horizontal dantooine-table">
-    <caption>Pracownicy samodzielni</caption>
+    <caption><h2>Pracownicy samodzielni</h2></caption>
     <thead>
     <tr>
         <th>#</th>
@@ -21,19 +41,23 @@
     <% for (var i=0; i<voters.length; i++) { %>
     <%if(voters[i].group==1){%>
     <tr>
-        <td><%= i+1 %></td>
-        <th><%= voters[i].surname + ', ' + voters[i].name %></th>
-        <td><%= voters[i].title %></td>
-        <td><%= voters[i].faculty %></td>
-        <td><%= voters[i].area_of_interests %></td>
-        <td></td>
+        <td width="20px"><%= i+1 %></td>
+        <td width="150px"><%= voters[i].surname + ', ' + voters[i].name %></td>
+        <td width="150px"><%= voters[i].title %></td>
+        <td width="150px"><%= voters[i].institute %></td>
+        <td width="150px"><%= voters[i].specialty %></td>
+        <td width="150px"> </td>
     </tr>
     <% } } %>
     </tbody>
 </table>
 
+    </br>
+    </br>
+    </br>
+
 <table class="pure-table pure-table-horizontal dantooine-table">
-    <caption>Pracownicy niesamodzielni</caption>
+    <caption><h2>Pracownicy niesamodzielni</h2></caption>
     <thead>
     <tr>
         <th>#</th>
@@ -48,17 +72,17 @@
     <% for (var i=0; i<voters.length; i++) { %>
     <%if(voters[i].group==2){%>
     <tr>
-        <td><%= i+1 %></td>
-        <th><%= voters[i].surname + ', ' + voters[i].name %></th>
-        <td><%= voters[i].title %></td>
-        <td><%= voters[i].faculty %></td>
-        <td><%= voters[i].area_of_interests %></td>
-        <td></td>
+        <td width="20px"><%= i+1 %></td>
+        <td width="150px"><%= voters[i].surname + ', ' + voters[i].name %></td>
+        <td width="150px"><%= voters[i].title %></td>
+        <td width="150px"><%= voters[i].institute %></td>
+        <td width="150px"><%= voters[i].specialty %></td>
+        <td width="150px"> </td>
     </tr>
     <% } } %>
     </tbody>
 </table>
-
+</div>
 
 </body>
 </html>

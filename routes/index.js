@@ -218,11 +218,13 @@ module.exports = function(passport)
     /* GET session info */
     router.get('/session/:id/presence', function (request, response, next) {
         var id = request.params.id;
-        pdf.getPresenceList(id, function (err, votingProtocol) {
-           if(err) errorHandler(err);
-            votingProtocol.pipe(response);
-        });
+        pdf.getPresenceList(id, request,response);
+        //response.download('/doctest/'+id, 'report.pdf');
+    });
 
+    router.get('/session/:id/protocols', function (request, response, next) {
+        var id = request.params.id;
+        pdf.getAllVotingProtocols(id, request,response);
         //response.download('/doctest/'+id, 'report.pdf');
     });
 
