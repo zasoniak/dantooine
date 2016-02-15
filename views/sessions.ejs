@@ -27,7 +27,7 @@
             <tbody>
             <% for (var i=0; i<sessions.length; i++) { %>
             <tr onclick="window.document.location='/session/<%= sessions[i].id %>';">
-                <td><%= moment(sessions[i].date).format("ll") + ' (' + moment(sessions[i].date).fromNow() + ')' %></td>
+                <td><%= moment(sessions[i].date).format("ll") %><br /><%= ' (' + moment(sessions[i].date).fromNow() + ')' %></td>
                 <th><%= sessions[i].name %></th>
                 <td><%= sessions[i].votings.length %></td>
                 <td><%= sessions[i].presence.length %></td>

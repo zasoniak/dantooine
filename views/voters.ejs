@@ -27,6 +27,7 @@
                 <th data-name="<%=voters[i].name%>" data-surname="<%=voters[i].surname%>"><%= voters[i].surname + ', ' + voters[i].name %></th>
                 <td><%= voters[i].title %></td>
                 <td><%= voters[i].institute %></td>
+                <td style="display: none"><%= voters[i].specialty %></td>
                 <td class="cell-action">
                     <button type="button" class="pure-button button-yellow">Edytuj</button>
                     <button type="button" data-url="<%= "/voters/"+voters[i].id %>" data-method="delete" class="pure-button button-delete button-red">Usuń</button>
@@ -140,7 +141,7 @@
             <div class="action-bar">
                 <button type="button" id="button-cancel-edit-member" class="pure-button">Anuluj</button>
                 <button type="reset" class="pure-button">Wyczyść</button>
-                <button type="button" id="button-submit-edit-member" data-method="put" class="pure-button button-primary">Akceptuj zmiany</button>
+                <button type="button" id="button-submit-edit-member" data-method="put" class="pure-button button-primary">Zakceptuj zmiany</button>
             </div>
         </form>
     </section>

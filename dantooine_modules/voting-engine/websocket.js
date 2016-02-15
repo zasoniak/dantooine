@@ -23,7 +23,7 @@ WebSocket.prototype.startVoting = function () {
 };
 
 WebSocket.prototype.nextSubquestion = function () {
-    io.emit('nextSubquestion');
+    io.emit('next subquestion');
 };
 
 WebSocket.prototype.endVoting = function (result) {
